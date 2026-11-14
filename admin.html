@@ -1,0 +1,228 @@
+<!DOCTYPE html>  <html lang="en">  
+<head>  
+<meta charset="UTF-8">  
+<meta name="viewport" content="width=device-width,initial-scale=1">  
+<title>AGASOBANUYE ONLINE1 | Admin</title>  
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>  
+<style>  
+:root{--gold:#d6ad55;--bg:#090909;--card:#171717}  
+*{box-sizing:border-box}  
+body{margin:0;background:var(--bg);color:white;font-family:Arial,sans-serif}  
+header{padding:17px;background:#151515;border-bottom:1px solid #333;color:var(--gold);font-weight:bold;display:flex;justify-content:space-between}  
+main{max-width:950px;margin:25px auto;padding:15px}  
+.panel{background:var(--card);padding:20px;border-radius:10px;margin-bottom:20px}  
+h2,h3{color:var(--gold)}  
+input,textarea,select{width:100%;padding:12px;margin:7px 0 14px;background:#242424;color:white;border:1px solid #444;border-radius:6px}  
+textarea{min-height:90px}  
+label{font-size:13px;color:#ddd}  
+button{background:var(--gold);color:#111;border:0;padding:11px 16px;border-radius:5px;font-weight:bold;cursor:pointer;margin:4px}  
+button.secondary{background:#333;color:white}  
+button.danger{background:#8b2929;color:white}  
+.hidden{display:none}  
+.item{padding:13px;background:#242424;margin:8px 0;border-radius:6px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}  
+small{color:#aaa}  
+#status{padding:10px;color:var(--gold)}  
+</style>  
+</head>  
+<body>  
+<header>  
+<span>AGASOBANUYE ONLINE1 — ADMIN</span>  
+<button class="secondary" id="logoutBtn" onclick="logout()" style="display:none">Logout</button>  
+</header>  
+<main>  
+<div id="loginPanel" class="panel">  
+<h2>Admin Login</h2>  
+<label>Email</label>  
+<input id="email" type="email" placeholder="Admin email">  
+<label>Password</label>  
+<input id="password" type="password" placeholder="Password">  
+<button onclick="login()">LOGIN</button>  
+<div id="loginStatus"></div>  
+</div>  <div id="dashboard" class="hidden">  
+<div class="panel">  
+<h2>Dashboard</h2>  
+<button onclick="showTab('movies')">Add Movie</button>  
+<button onclick="showTab('series')">Add Series</button>  
+<button onclick="showTab('seasons')">Seasons & Episodes</button>  
+<button onclick="showTab('manage')">Manage Content</button>  
+<div id="status"></div>  
+</div>  <div class="panel" id="moviesTab">  
+<h2 id="movieFormTitle">Add Movie</h2>  
+<input type="hidden" id="movieId">  
+<label>Movie Title</label><input id="movieTitle" placeholder="Movie title">  
+<label>Synopsis / Description</label><textarea id="movieSynopsis" placeholder="Film description"></textarea>  
+<label>Release Year</label><input id="movieYear" type="number" placeholder="2026">  
+<label>Country</label><input id="movieCountry" placeholder="Country">  
+<label>Category</label>  
+<select id="movieCategory">  
+<option>Action</option><option>Romance</option><option>Horror</option><option>Indian</option><option>Cartoon</option><option>Sci-fi</option><option>Drama</option><option>Comedy</option><option>Others</option>  
+</select>  
+<label>Translator</label><input id="movieTranslator" placeholder="Translator name">  
+<label>Poster URL</label><input id="moviePoster" type="url" placeholder="https://...">  
+<label>Trailer URL (YouTube or video URL)</label><input id="movieTrailer" type="url" placeholder="https://...">  
+<label>Full Movie URL</label><input id="movieFull" type="url" placeholder="https://...">  
+<label>Publish content?</label><select id="moviePublished"><option value="true">Published</option><option value="false">Draft</option></select>  
+<button onclick="saveContent('movie')">SAVE MOVIE</button>  
+<button class="secondary" onclick="resetMovie()">Clear</button>  
+</div>  <div class="panel hidden" id="seriesTab">  
+<h2 id="seriesFormTitle">Add Series</h2>  
+<input type="hidden" id="seriesId">  
+<label>Series Title</label><input id="seriesTitle">  
+<label>Description</label><textarea id="seriesSynopsis"></textarea>  
+<label>Release Year</label><input id="seriesYear" type="number">  
+<label>Country</label><input id="seriesCountry">  
+<label>Category</label>  
+<select id="seriesCategory"><option>Action</option><option>Romance</option><option>Horror</option><option>Indian</option><option>Cartoon</option><option>Sci-fi</option><option>Drama</option><option>Comedy</option><option>Others</option></select>  
+<label>Translator</label><input id="seriesTranslator">  
+<label>Poster URL</label><input id="seriesPoster" type="url">  
+<label>Trailer URL</label><input id="seriesTrailer" type="url">  
+<label>Full Series URL (optional)</label><input id="seriesFull" type="url">  
+<label>Publish?</label><select id="seriesPublished"><option value="true">Published</option><option value="false">Draft</option></select>  
+<button onclick="saveContent('series')">SAVE SERIES</button>  
+<button class="secondary" onclick="resetSeries()">Clear</button>  
+</div>  <div class="panel hidden" id="seasonsTab">  
+<h2>Seasons & Episodes</h2>  
+<label>Select Series</label><select id="seasonMovie"></select>  
+<label>Season Number</label><input id="seasonNumber" type="number" value="1">  
+<label>Season Title</label><input id="seasonTitle" placeholder="Season 1">  
+<label>Season Full Link (optional)</label><input id="seasonFull">  
+<button onclick="saveSeason()">ADD SEASON</button>  
+<hr>  
+<label>Select Season</label><select id="episodeSeason"></select>  
+<label>Episode Number</label><input id="episodeNumber" type="number" value="1">  
+<label>Episode Title</label><input id="episodeTitle">  
+<label>Episode Trailer URL</label><input id="episodeTrailer">  
+<label>Episode Full Movie URL</label><input id="episodeFull">  
+<button onclick="saveEpisode()">ADD EPISODE</button>  
+</div>  <div class="panel hidden" id="manageTab">  
+<h2>Manage Movies & Series</h2>  
+<div id="contentList">Loading...</div>  
+</div>  
+</div>  
+</main>  <script>  
+const SUPABASE_URL="https://xplntbsngafgcercowsp.supabase.co";  
+const SUPABASE_KEY="sb_publishable_GZyb3rumXDyVQhy1dflV-A_-IOklH4E";  
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);  
+let currentUser=null;  
+  
+function message(t){document.getElementById("status").textContent=t}  
+async function login(){  
+ const email=document.getElementById("email").value.trim();  
+ const password=document.getElementById("password").value;  
+ const out=document.getElementById("loginStatus");  
+ out.textContent="Signing in...";  
+ const {data,error}=await db.auth.signInWithPassword({email,password});  
+ if(error){out.textContent="Login failed: "+error.message;return}  
+ currentUser=data.user;  
+ const {data:admin,error:adminError}=await db.from("admins").select("user_id").eq("user_id",currentUser.id).maybeSingle();  
+ if(adminError||!admin){  
+  await db.auth.signOut();  
+  out.textContent="This account is not registered as an administrator.";  
+  return;  
+ }  
+ document.getElementById("loginPanel").classList.add("hidden");  
+ document.getElementById("dashboard").classList.remove("hidden");  
+ document.getElementById("logoutBtn").style.display="inline-block";  
+ await refreshData();  
+}  
+async function logout(){  
+ await db.auth.signOut();  
+ location.reload();  
+}  
+function showTab(tab){  
+ ["movies","series","seasons","manage"].forEach(x=>document.getElementById(x+"Tab").classList.toggle("hidden",x!==tab));  
+}  
+function resetMovie(){  
+ ["movieId","movieTitle","movieSynopsis","movieYear","movieCountry","movieTranslator","moviePoster","movieTrailer","movieFull"].forEach(id=>document.getElementById(id).value="");  
+ document.getElementById("moviePublished").value="true";  
+ document.getElementById("movieFormTitle").textContent="Add Movie";  
+}  
+function resetSeries(){  
+ ["seriesId","seriesTitle","seriesSynopsis","seriesYear","seriesCountry","seriesTranslator","seriesPoster","seriesTrailer","seriesFull"].forEach(id=>document.getElementById(id).value="");  
+ document.getElementById("seriesPublished").value="true";  
+ document.getElementById("seriesFormTitle").textContent="Add Series";  
+}  
+async function saveContent(type){  
+ const isSeries=type==="series";  
+ const v=id=>document.getElementById((isSeries?"series":"movie")+id).value.trim();  
+ const id=v("Id");  
+ const record={  
+  title:v("Title"),synopsis:v("Synopsis"),release_year:v("Year")?Number(v("Year")):null,  
+  country:v("Country"),category:v("Category"),content_type:isSeries?"series":"movie",  
+  translator:v("Translator"),poster_url:v("Poster"),trailer_url:v("Trailer"),  
+  download_url:v("Full"),is_published:document.getElementById(isSeries?"seriesPublished":"moviePublished").value==="true"  
+ };  
+ if(!record.title){message("Please enter a title.");return}  
+ const result=id?await db.from("movies").update(record).eq("id",id):await db.from("movies").insert(record);  
+ if(result.error){message("Save failed: "+result.error.message);return}  
+ message(isSeries?"Series saved successfully.":"Movie saved successfully.");  
+ isSeries?resetSeries():resetMovie();  
+ await refreshData();  
+}  
+async function refreshData(){  
+ const {data,error}=await db.from("movies").select("*").order("created_at",{ascending:false});  
+ if(error){message(error.message);return}  
+ const all=data||[];  
+ document.getElementById("contentList").innerHTML=all.map(m=>`  
+ <div class="item"><div><strong>${escapeHtml(m.title)}</strong><br><small>${m.content_type||"movie"} · ${m.is_published?"Published":"Draft"}</small></div>  
+ <div><button onclick="editContent('${m.id}')">Edit</button><button class="danger" onclick="deleteContent('${m.id}')">Delete</button></div></div>`).join("")||"No content yet.";  
+ const series=all.filter(m=>m.content_type==="series");  
+ document.getElementById("seasonMovie").innerHTML=series.map(s=>`<option value="${s.id}">${escapeHtml(s.title)}</option>`).join("");  
+ await loadSeasonOptions();  
+}  
+function escapeHtml(s){return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}  
+async function editContent(id){  
+ const {data,error}=await db.from("movies").select("*").eq("id",id).single();  
+ if(error){message(error.message);return}  
+ const m=data,series=m.content_type==="series";  
+ showTab(series?"series":"movies");  
+ const p=series?"series":"movie";  
+ const set=(name,val)=>document.getElementById(p+name).value=val??"";  
+ set("Id",m.id);set("Title",m.title);set("Synopsis",m.synopsis);set("Year",m.release_year);set("Country",m.country);set("Category",m.category);set("Translator",m.translator||m.translator_name);set("Poster",m.poster_url);set("Trailer",m.trailer_url);set("Full",m.download_url);  
+ document.getElementById(p+"Published").value=String(!!m.is_published);  
+ document.getElementById(p+"FormTitle").textContent="Edit "+(series?"Series":"Movie");  
+}  
+async function deleteContent(id){  
+ if(!confirm("Delete this content?"))return;  
+ const {error}=await db.from("movies").delete().eq("id",id);  
+ message(error?"Delete failed: "+error.message:"Content deleted.");  
+ await refreshData();  
+}  
+async function saveSeason(){  
+ const movie_id=document.getElementById("seasonMovie").value;  
+ if(!movie_id){message("Add a series first.");return}  
+ const row={movie_id,season_number:Number(document.getElementById("seasonNumber").value),title:document.getElementById("seasonTitle").value.trim(),download_url:document.getElementById("seasonFull").value.trim()};  
+ const {error}=await db.from("seasons").insert(row);  
+ message(error?"Season error: "+error.message:"Season added.");  
+ await loadSeasonOptions();  
+}  
+async function loadSeasonOptions(){  
+ const movie_id=document.getElementById("seasonMovie").value;  
+ if(!movie_id){document.getElementById("episodeSeason").innerHTML="";return}  
+ const {data,error}=await db.from("seasons").select("*").eq("movie_id",movie_id).order("season_number");  
+ if(error){message(error.message);return}  
+ document.getElementById("episodeSeason").innerHTML=(data||[]).map(s=>`<option value="${s.id}">Season ${s.season_number} — ${escapeHtml(s.title)}</option>`).join("");  
+}  
+document.getElementById("seasonMovie").addEventListener("change",loadSeasonOptions);  
+async function saveEpisode(){  
+ const season_id=document.getElementById("episodeSeason").value;  
+ if(!season_id){message("Add a season first.");return}  
+ const row={season_id,episode_number:Number(document.getElementById("episodeNumber").value),title:document.getElementById("episodeTitle").value.trim(),trailer_url:document.getElementById("episodeTrailer").value.trim(),download_url:document.getElementById("episodeFull").value.trim()};  
+ const {error}=await db.from("episodes").insert(row);  
+ message(error?"Episode error: "+error.message:"Episode added.");  
+}  
+(async()=>{  
+ const {data}=await db.auth.getSession();  
+ if(data.session){  
+  currentUser=data.session.user;  
+  const {data:admin}=await db.from("admins").select("user_id").eq("user_id",currentUser.id).maybeSingle();  
+  if(admin){  
+   document.getElementById("loginPanel").classList.add("hidden");  
+   document.getElementById("dashboard").classList.remove("hidden");  
+   document.getElementById("logoutBtn").style.display="inline-block";  
+   await refreshData();  
+  }else await db.auth.signOut();  
+ }  
+})();  
+</script>  </body>  
+</html>
