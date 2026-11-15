@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,7 +46,7 @@ footer{margin-top:35px;background:#111;text-align:center;padding:25px;color:#aaa
 </head>
 <body>
 <header>
-<div class="logo">AGASOBANUYE ONLINE1</div>
+<div class="logo">Rebaflm</div>
 <nav>
 <a href="#">Home</a><a href="#trending">Trending</a><a href="#recent">Recent</a><a href="#series">Series</a><a href="#categories">Categories</a>
 </nav>
@@ -57,7 +58,7 @@ footer{margin-top:35px;background:#111;text-align:center;padding:25px;color:#aaa
 
 <div class="hero">
 <div>
-<div class="tag">WELCOME TO AGASOBANUYE ONLINE1</div>
+<div class="tag">WELCOME TO REBAFLM</div>
 <h1 id="heroTitle">Discover Movies & Series</h1>
 <p id="heroText">Watch trailers and discover your favourite movies and series.</p>
 <a href="#recent" class="btn">Explore Now</a>
@@ -96,9 +97,9 @@ footer{margin-top:35px;background:#111;text-align:center;padding:25px;color:#aaa
 </section>
 
 <footer>
-<strong style="color:#d6ad55">AGASOBANUYE ONLINE1</strong>
+<strong style="color:#d6ad55">Rebaflm</strong>
 <p>Movies • Series • Trailers • Entertainment</p>
-<p>© 2026 AGASOBANUYE ONLINE1. All rights reserved.</p>
+<p>© 2026 Rebaflm. All rights reserved.</p>
 </footer>
 
 <div class="modal" id="movieModal">
@@ -127,7 +128,7 @@ async function loadMovies(){
 
 function card(m){
  return `<article class="movie" onclick="openMovie('${m.id}')">
- <img src="${safe(m.poster_url||'https://via.placeholder.com/300x420?text=AGASOBANUYE')}" alt="${safe(m.title)} poster" onerror="this.src='https://via.placeholder.com/300x420?text=No+Poster'">
+ <img src="${safe(m.poster_url||'https://via.placeholder.com/300x420?text=REBAFLM')}" alt="${safe(m.title)} poster" onerror="this.src='https://via.placeholder.com/300x420?text=No+Poster'">
  <h3>${safe(m.title)}</h3>
  <small>${safe(m.release_year||'')} · <span class="tag">${safe(m.category||'Movie')}</span></small>
  </article>`;
@@ -199,5 +200,4 @@ document.getElementById("movieModal").addEventListener("click",e=>{if(e.target.i
 loadMovies();
 </script>
 </body>
-  </html>
-
+</html>
