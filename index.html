@@ -8,6 +8,7 @@
 <title>Rebaflm - Movies & Series</title>
 <meta name="description" content="Discover movies and series on Rebaflm.">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 :root{--gold:#d6ad55;--bg:#090909;--card:#171717;--muted:#aaa;--white:#fff}
 *{box-sizing:border-box}
@@ -15,8 +16,10 @@ body{margin:0;background:var(--bg);color:var(--white);font-family:Arial,sans-ser
 a{color:inherit;text-decoration:none}
 button{cursor:pointer;font:inherit}
 header{background:#111;position:sticky;top:0;z-index:20;border-bottom:1px solid #292929}
-.nav{max-width:1250px;margin:auto;padding:15px 4%;display:flex;align-items:center;justify-content:space-between;gap:15px}
-.logo{font-size:25px;font-weight:900;color:var(--gold)}
+.nav{max-width:1250px;margin:auto;padding:12px 4%;display:flex;align-items:center;justify-content:space-between;gap:15px}
+.brand{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.brand-picture{width:38px;height:38px;object-fit:cover;border-radius:50%;border:2px solid var(--gold);cursor:pointer;display:block}
+.logo{font-size:25px;line-height:38px;font-weight:900;color:var(--gold)}
 nav{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
 nav a{font-size:14px;color:#ddd}
 nav a:hover,.gold{color:var(--gold)}
@@ -58,15 +61,51 @@ footer a{display:block;margin:9px 0;font-size:14px}
 .detail-text p{color:#bbb;line-height:1.6}
 .episode{display:block;width:100%;text-align:left;background:#252525;color:white;border:1px solid #333;padding:12px;margin:8px 0;border-radius:5px}
 .episode:hover{border-color:var(--gold)}
-@media(max-width:800px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}nav{gap:10px}.hero h1{font-size:30px}}
-@media(max-width:520px){.nav{align-items:flex-start;flex-direction:column}nav{width:100%;justify-content:space-between}nav a{font-size:12px}.hero{min-height:280px;padding:22px}.hero h1{font-size:27px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.translators{grid-template-columns:repeat(2,1fr)}.detail{flex-direction:column}.detail img{width:145px}.footer-inner{grid-template-columns:1fr}}
+
+/* PROFILE IMAGE VIEWER */
+#foxViewer{display:none;position:fixed;inset:0;background:rgba(0,0,0,.97);z-index:1000;align-items:center;justify-content:center;flex-direction:column;padding:18px}
+#foxFullImage{max-width:96%;max-height:78vh;object-fit:contain;border-radius:5px}
+.fox-actions{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap;justify-content:center}
+.fox-actions button{background:var(--gold);color:#111;border:0;padding:11px 18px;border-radius:6px;font-weight:bold;cursor:pointer}
+.fox-actions .close-save{background:#333;color:white}
+#saveMessage{color:#ddd;font-size:13px;text-align:center;margin-top:12px;max-width:300px}
+
+@media(max-width:800px){
+ .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ nav{gap:10px}
+ .hero h1{font-size:30px}
+}
+@media(max-width:520px){
+ .nav{align-items:flex-start;flex-direction:column}
+ .brand{align-self:flex-start}
+ nav{width:100%;justify-content:space-between}
+ nav a{font-size:12px}
+ .hero{min-height:280px;padding:22px}
+ .hero h1{font-size:27px}
+ .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ .translators{grid-template-columns:repeat(2,1fr)}
+ .detail{flex-direction:column}
+ .detail img{width:145px}
+ .footer-inner{grid-template-columns:1fr}
+}
 </style>
 </head>
+
 <body>
 
 <header>
  <div class="nav">
-  <a class="logo" href="#">REBAFLM</a>
+  <div class="brand">
+   <img
+    class="brand-picture"
+    src="https://image.tmdb.org/t/p/original/gCcTrBYAQPhFe2zBatpq46oavyV.jpg"
+    alt="Rebaflm Profile Picture"
+    onclick="openFoxProfile()"
+    onerror="this.style.display='none'"
+   >
+   <a class="logo" href="#">REBAFLM</a>
+  </div>
+
   <nav>
    <a href="#">Home</a>
    <a href="#trending">Trending</a>
@@ -75,12 +114,14 @@ footer a{display:block;margin:9px 0;font-size:14px}
    <a href="#categories">Categories</a>
   </nav>
  </div>
+
  <div class="search">
   <input id="searchInput" type="search" placeholder="Search movies, series or translators...">
  </div>
 </header>
 
 <main>
+
  <section class="hero">
   <div class="hero-content">
    <div class="tag">WELCOME TO REBAFLM</div>
@@ -134,6 +175,7 @@ footer a{display:block;margin:9px 0;font-size:14px}
   <div class="section-head"><h2>Search Results</h2></div>
   <div id="searchGrid" class="grid"></div>
  </section>
+
 </main>
 
 <footer>
@@ -144,6 +186,23 @@ footer a{display:block;margin:9px 0;font-size:14px}
  </div>
  <p style="text-align:center;margin-top:30px;font-size:12px">© <span id="year"></span> Rebaflm. All rights reserved.</p>
 </footer>
+
+<!-- FULL PROFILE IMAGE -->
+<div id="foxViewer" onclick="if(event.target===this)closeFoxProfile()">
+ <button class="close" style="position:absolute;top:18px;right:18px" onclick="closeFoxProfile()">Close ✕</button>
+
+ <img
+  id="foxFullImage"
+  src="https://image.tmdb.org/t/p/original/gCcTrBYAQPhFe2zBatpq46oavyV.jpg"
+  alt="Fox Volant full picture"
+ >
+
+ <div class="fox-actions">
+  <button onclick="saveFoxImage()">Save Image</button>
+  <button class="close-save" onclick="closeFoxProfile()">Close</button>
+ </div>
+ <div id="saveMessage"></div>
+</div>
 
 <div id="modal">
  <div class="modal-box">
@@ -157,30 +216,83 @@ const SUPABASE_URL="https://xplntbsngafgcercowsp.supabase.co";
 const SUPABASE_KEY="sb_publishable_GZyb3rumXDyVQhy1dflV-A_-IOklH4E";
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
+const FOX_IMAGE_URL="https://image.tmdb.org/t/p/original/gCcTrBYAQPhFe2zBatpq46oavyV.jpg";
+
 let movies=[];
+
 const translators=[
  "Rocky Kimomo","Sankara Da Premier","Gaheza Simba",
  "PK - The Sound","Yanga","Junior Giti","Skov",
  "Perfect","Mussa Savimbi","Master P","B the great"
 ];
+
 const categories=["Action","Romance","Horror","Indian","Cartoon","Scifi","Drama","Comedy","Others"];
 
 const $=id=>document.getElementById(id);
+
+function openFoxProfile(){
+ $("foxViewer").style.display="flex";
+ $("saveMessage").textContent="";
+}
+
+function closeFoxProfile(){
+ $("foxViewer").style.display="none";
+}
+
+async function saveFoxImage(){
+ const message=$("saveMessage");
+ message.textContent="Preparing image...";
+
+ try{
+  const response=await fetch(FOX_IMAGE_URL,{mode:"cors"});
+  if(!response.ok)throw new Error("Image download failed");
+
+  const blob=await response.blob();
+  if(!blob.type.startsWith("image/"))throw new Error("Invalid image");
+
+  const blobUrl=URL.createObjectURL(blob);
+  const link=document.createElement("a");
+
+  link.href=blobUrl;
+  link.download="Fox-Volant-of-the-Snowy-Mountain.jpg";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  message.textContent="Download started. Check your Downloads folder.";
+  setTimeout(()=>URL.revokeObjectURL(blobUrl),10000);
+
+ }catch(error){
+  console.error("Image save error:",error);
+  message.textContent="Automatic saving was blocked. Opening the image so you can save it manually.";
+  window.open(FOX_IMAGE_URL,"_blank","noopener");
+ }
+}
+
+document.addEventListener("keydown",e=>{
+ if(e.key==="Escape"){
+  closeFoxProfile();
+  closeModal();
+ }
+});
 
 function esc(value){
  return String(value??"").replace(/[&<>"']/g,c=>({
  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
  }[c]));
 }
+
 function safeUrl(value){
  try{
   const u=new URL(value);
   return ["http:","https:"].includes(u.protocol)?u.href:"#";
  }catch(e){return "#";}
 }
+
 function poster(movie){
  return safeUrl(movie.poster_url)||"#";
 }
+
 function card(movie){
  const image=movie.poster_url?safeUrl(movie.poster_url):"https://placehold.co/400x600/171717/d6ad55?text=Rebaflm";
  return `<article class="movie" onclick="openMovie('${esc(movie.id)}')">
@@ -191,14 +303,17 @@ function card(movie){
  <div class="meta">${esc(movie.translator_name||movie.translator||"")}</div>
  </div></article>`;
 }
+
 function showGrid(id,list,message="No content available yet."){
  $(id).innerHTML=list.length?list.map(card).join(""):`<div class="empty">${message}</div>`;
 }
+
 function showFeatured(movie){
  if(!movie){
   $("featuredContent").innerHTML='<div class="empty">No featured movie available yet.</div>';
   return;
  }
+
  $("featuredContent").innerHTML=`
  <div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;background:#171717;padding:18px;border-radius:9px">
  ${movie.poster_url?`<img src="${safeUrl(movie.poster_url)}" style="width:130px;max-height:190px;object-fit:cover;border-radius:6px" alt="">`:""}
@@ -209,23 +324,28 @@ function showFeatured(movie){
  <button class="btn" onclick="openMovie('${esc(movie.id)}')">View Details</button>
  </div></div>`;
 }
+
 function renderCategories(){
- $("categorySections").innerHTML=categories.map((cat,i)=>{
+ $("categorySections").innerHTML=categories.map(cat=>{
  const list=movies.filter(m=>(m.category||"").toLowerCase()===cat.toLowerCase() && m.content_type!=="series");
+
  return `<div class="section">
  <div class="section-head"><h2>${esc(cat)}</h2></div>
  <div class="grid">${list.length?list.slice(0,5).map(card).join(""):'<div class="empty">No movies in this category yet.</div>'}</div>
  </div>`;
  }).join("");
 }
+
 function renderTranslators(){
  $("translatorList").innerHTML=translators.map(name=>
  `<a class="translator" href="#" onclick="searchTranslator('${esc(name)}');return false">${esc(name)}</a>`
  ).join("");
 }
+
 function renderAll(){
  const films=movies.filter(m=>m.content_type!=="series");
  const series=movies.filter(m=>m.content_type==="series");
+
  showFeatured(films[0]);
  showGrid("recentMovies",films.slice(0,10));
  showGrid("trendingMovies",films.slice(0,10));
@@ -233,49 +353,66 @@ function renderAll(){
  showGrid("seriesMovies",series);
  renderCategories();
 }
+
 async function loadMovies(){
- const recent=$("recentMovies");
- recent.innerHTML='<div class="loading">Loading movies...</div>';
- const timeout=new Promise((_,reject)=>setTimeout(()=>reject(new Error("Request timed out. Check your internet connection.")),15000));
+ $("recentMovies").innerHTML='<div class="loading">Loading movies...</div>';
+
+ const timeout=new Promise((_,reject)=>
+  setTimeout(()=>reject(new Error("Request timed out. Check your internet connection.")),15000)
+ );
+
  try{
   const request=db.from("movies").select("*").eq("is_published",true).order("created_at",{ascending:false});
   const result=await Promise.race([request,timeout]);
+
   if(result.error)throw result.error;
+
   movies=result.data||[];
   renderAll();
   loadSeasons();
+
  }catch(error){
   console.error("Rebaflm loading error:",error);
   const message=error.message||"Unknown error";
+
   $("featuredContent").innerHTML='<div class="empty">Movies could not load. Please try again.</div>';
+
   ["recentMovies","trendingMovies","topMovies","seriesMovies"].forEach(id=>{
    $(id).innerHTML=`<div class="empty">Could not load content. ${esc(message)}</div>`;
   });
  }
 }
+
 async function loadSeasons(){
  try{
   const {data,error}=await db.from("seasons").select("*,movies(title,poster_url)").order("season_number",{ascending:false}).limit(10);
+
   if(error)throw error;
+
   if(!data||!data.length){
    $("seasonMovies").innerHTML='<div class="empty">No seasons available yet.</div>';
    return;
   }
+
   $("seasonMovies").innerHTML=data.map(s=>{
    const movie=s.movies||{};
+
    return `<article class="movie" onclick="openSeries('${esc(s.movie_id)}')">
    <img class="poster" src="${movie.poster_url?safeUrl(movie.poster_url):'https://placehold.co/400x600/171717/d6ad55?text=Series'}" alt="">
    <div class="movie-info"><h3>${esc(movie.title||s.title||"Series")}</h3><div class="meta">Season ${esc(s.season_number)}</div></div>
    </article>`;
   }).join("");
+
  }catch(error){
   console.error("Seasons error:",error);
   $("seasonMovies").innerHTML='<div class="empty">Seasons are not available right now.</div>';
  }
 }
+
 function openMovie(id){
  const movie=movies.find(m=>String(m.id)===String(id));
  if(!movie)return;
+
  $("modalContent").innerHTML=`
  <div class="detail">
  ${movie.poster_url?`<img src="${safeUrl(movie.poster_url)}" alt="">`:""}
@@ -290,27 +427,41 @@ function openMovie(id){
  movie.download_url?`<a class="btn" target="_blank" rel="noopener" href="${safeUrl(movie.download_url)}">Open Movie</a>`:""}
  </div></div>
  <div id="episodesArea"></div>`;
+
  $("modal").style.display="block";
+
  if(movie.content_type==="series")loadEpisodes(movie.id);
 }
+
 async function openSeries(id){
  openMovie(id);
 }
+
 async function loadEpisodes(movieId){
  const area=$("episodesArea");
  if(!area)return;
+
  area.innerHTML='<p class="gold">Loading seasons and episodes...</p>';
+
  try{
   const {data:seasons,error}=await db.from("seasons").select("*").eq("movie_id",movieId).order("season_number");
+
   if(error)throw error;
+
   if(!seasons||!seasons.length){
-   area.innerHTML='<p class="meta">No seasons available yet.</p>';return;
+   area.innerHTML='<p class="meta">No seasons available yet.</p>';
+   return;
   }
+
   let html="";
+
   for(const season of seasons){
    const {data:episodes,error:epError}=await db.from("episodes").select("*").eq("season_id",season.id).order("episode_number");
+
    if(epError)throw epError;
+
    html+=`<h3>${esc(season.title||"Season "+season.season_number)}</h3>`;
+
    if(episodes&&episodes.length){
     html+=episodes.map(ep=>`
     <div class="episode">
@@ -320,36 +471,57 @@ async function loadEpisodes(movieId){
      ${ep.download_url?` <a class="gold" target="_blank" rel="noopener" href="${safeUrl(ep.download_url)}">Open Episode</a>`:""}
      </div>
     </div>`).join("");
-   }else html+='<p class="meta">No episodes in this season yet.</p>';
+   }else{
+    html+='<p class="meta">No episodes in this season yet.</p>';
+   }
   }
+
   if($("episodesArea"))$("episodesArea").innerHTML=html;
+
  }catch(error){
   console.error("Episodes error:",error);
   if($("episodesArea"))$("episodesArea").innerHTML='<p class="meta">Could not load episodes.</p>';
  }
 }
-function closeModal(){$("modal").style.display="none";}
-$("modal").addEventListener("click",e=>{if(e.target===$("modal"))closeModal();});
+
+function closeModal(){
+ $("modal").style.display="none";
+}
+
+$("modal").addEventListener("click",e=>{
+ if(e.target===$("modal"))closeModal();
+});
+
 function searchTranslator(name){
  $("searchInput").value=name;
  runSearch(name);
  window.scrollTo({top:0,behavior:"smooth"});
 }
+
 function runSearch(value){
  const q=value.trim().toLowerCase();
- if(!q){$("searchResults").style.display="none";return;}
+
+ if(!q){
+  $("searchResults").style.display="none";
+  return;
+ }
+
  const results=movies.filter(m=>
- [m.title,m.category,m.translator,m.translator_name,m.content_type,m.release_year]
- .some(v=>String(v||"").toLowerCase().includes(q))
+  [m.title,m.category,m.translator,m.translator_name,m.content_type,m.release_year]
+  .some(v=>String(v||"").toLowerCase().includes(q))
  );
+
  $("searchResults").style.display="block";
  showGrid("searchGrid",results,"No matching movies found.");
 }
+
 $("searchInput").addEventListener("input",e=>runSearch(e.target.value));
 $("year").textContent=new Date().getFullYear();
+
 renderTranslators();
 loadMovies();
 </script>
+
 </body>
-  </html>
-  
+                                                                       </html>
+                                                                      
