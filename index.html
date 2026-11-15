@@ -1,0 +1,203 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080808">
+<title>Rebaflm</title>
+<meta name="google-site-verification" content="LtzQ2l0piXLHJj8X-BfQZKPI8tifBs2VWsFw9k8O4Ok" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--gold:#d6ad55;--bg:#090909;--card:#171717;--muted:#aaa}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:white;font-family:Arial,sans-serif}
+header{background:#111;padding:14px 4%;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:10;border-bottom:1px solid #292929}
+.logo{font-size:19px;font-weight:bold;color:var(--gold)}
+nav{display:flex;gap:15px;flex-wrap:wrap}
+nav a{color:white;text-decoration:none;font-size:13px}
+nav a:hover{color:var(--gold)}
+.search{padding:10px 4%;background:#111}
+input{width:100%;padding:12px;border:1px solid #333;border-radius:7px;background:#202020;color:white}
+.hero{margin:15px 4%;min-height:260px;border-radius:12px;background:linear-gradient(90deg,#000e,#0005),url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1400') center/cover;display:flex;align-items:end;padding:25px}
+.hero h1{color:var(--gold);font-size:30px;margin:0 0 10px}
+.hero p{max-width:500px;line-height:1.5}
+.btn{display:inline-block;padding:11px 17px;background:var(--gold);color:#111;text-decoration:none;border:0;border-radius:5px;font-weight:bold;cursor:pointer;margin:5px 5px 5px 0}
+.btn.dark{background:#333;color:white}
+section{padding:12px 4%}
+.section-title{font-size:21px;border-left:4px solid var(--gold);padding-left:10px;margin:15px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:14px}
+.movie{background:var(--card);border-radius:8px;overflow:hidden;cursor:pointer}
+.movie img{width:100%;height:205px;object-fit:cover;background:#222}
+.movie h3{font-size:14px;margin:9px}
+.movie small{display:block;color:var(--muted);margin:0 9px 10px}
+.tag{color:var(--gold);font-size:11px}
+#message{padding:20px;color:var(--muted)}
+footer{margin-top:35px;background:#111;text-align:center;padding:25px;color:#aaa;font-size:13px}
+.modal{display:none;position:fixed;inset:0;background:#000e;z-index:30;overflow:auto;padding:20px}
+.modal-box{max-width:700px;margin:20px auto;background:#171717;padding:20px;border-radius:10px}
+.modal img{width:145px;max-height:210px;object-fit:cover;float:left;margin:0 15px 12px 0}
+.modal h2{color:var(--gold)}
+.modal video{width:100%;max-height:350px;background:#000;margin-top:15px}
+.close{float:right;background:#333;color:white;border:0;padding:8px 12px;cursor:pointer}
+.clear{clear:both}
+@media(max-width:600px){nav{gap:9px}.logo{font-size:15px}.hero{min-height:220px}.hero h1{font-size:23px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.movie img{height:220px}}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">Rebaflm</div>
+<nav>
+<a href="#">Home</a><a href="#trending">Trending</a><a href="#recent">Recent</a><a href="#series">Series</a><a href="#categories">Categories</a>
+</nav>
+</header>
+
+<div class="search">
+<input id="search" placeholder="Search movies and series..." oninput="renderAll()">
+</div>
+
+<div class="hero">
+<div>
+<div class="tag">WELCOME TO REBAFLM</div>
+<h1 id="heroTitle">Discover Movies & Series</h1>
+<p id="heroText">Watch trailers and discover your favourite movies and series.</p>
+<a href="#recent" class="btn">Explore Now</a>
+</div>
+</div>
+
+<section id="trending">
+<h2 class="section-title">Trending Movies</h2>
+<div class="grid" id="trendingGrid"></div>
+</section>
+
+<section id="recent">
+<h2 class="section-title">Recent Movies</h2>
+<div class="grid" id="recentGrid"></div>
+</section>
+
+<section>
+<h2 class="section-title">Top 10 Movies</h2>
+<div class="grid" id="topGrid"></div>
+</section>
+
+<section id="series">
+<h2 class="section-title">Popular Series</h2>
+<div class="grid" id="seriesGrid"></div>
+</section>
+
+<section id="categories">
+<h2 class="section-title">Categories</h2>
+<div id="categoryButtons"></div>
+<div class="grid" id="categoryGrid"></div>
+</section>
+
+<section>
+<h2 class="section-title">Our Translators</h2>
+<div class="grid" id="translatorGrid"></div>
+</section>
+
+<footer>
+<strong style="color:#d6ad55">Rebaflm</strong>
+<p>Movies • Series • Trailers • Entertainment</p>
+<p>© 2026 Rebaflm. All rights reserved.</p>
+</footer>
+
+<div class="modal" id="movieModal">
+<div class="modal-box">
+<button class="close" onclick="closeModal()">CLOSE ✕</button>
+<div id="modalContent"></div>
+</div>
+</div>
+
+<script>
+const SUPABASE_URL="https://xplntbsngafgcercowsp.supabase.co";
+const SUPABASE_KEY="sb_publishable_GZyb3rumXDyVQhy1dflV-A_-IOklH4E";
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+let movies=[];
+let activeCategory="All";
+
+function safe(v){return String(v||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+
+async function loadMovies(){
+ document.getElementById("recentGrid").innerHTML="<p id='message'>Loading movies...</p>";
+ const {data,error}=await db.from("movies").select("*").eq("is_published",true).order("created_at",{ascending:false});
+ if(error){document.getElementById("recentGrid").innerHTML="<p id='message'>Could not load movies. Check Supabase connection and table permissions.</p>";return}
+ movies=data||[];
+ renderAll();
+}
+
+function card(m){
+ return `<article class="movie" onclick="openMovie('${m.id}')">
+ <img src="${safe(m.poster_url||'https://via.placeholder.com/300x420?text=REBAFLM')}" alt="${safe(m.title)} poster" onerror="this.src='https://via.placeholder.com/300x420?text=No+Poster'">
+ <h3>${safe(m.title)}</h3>
+ <small>${safe(m.release_year||'')} · <span class="tag">${safe(m.category||'Movie')}</span></small>
+ </article>`;
+}
+
+function showGrid(id,list){
+ document.getElementById(id).innerHTML=list.length?list.map(card).join(""):"<p id='message'>No content available yet.</p>";
+}
+
+function renderAll(){
+ const q=(document.getElementById("search").value||"").toLowerCase();
+ let filtered=movies.filter(m=>(m.title||"").toLowerCase().includes(q)||(m.category||"").toLowerCase().includes(q)||(m.translator||m.translator_name||"").toLowerCase().includes(q));
+ const films=filtered.filter(m=>m.content_type!=="series");
+ const series=filtered.filter(m=>m.content_type==="series");
+ showGrid("trendingGrid",films.slice(0,8));
+ showGrid("recentGrid",films);
+ showGrid("topGrid",films.slice(0,10));
+ showGrid("seriesGrid",series);
+
+ const cats=[...new Set(movies.map(m=>m.category).filter(Boolean))];
+ document.getElementById("categoryButtons").innerHTML=
+ `<button class="btn ${activeCategory==='All'?'':'dark'}" onclick="setCategory('All')">All</button>`+
+ cats.map(c=>`<button class="btn dark" onclick="setCategory('${safe(c).replace(/'/g,"&#39;")}')">${safe(c)}</button>`).join("");
+ let catMovies=films.filter(m=>activeCategory==="All"||m.category===activeCategory);
+ showGrid("categoryGrid",catMovies.filter(m=>(m.title||"").toLowerCase().includes(q)));
+
+ const translators=[...new Set(movies.map(m=>m.translator||m.translator_name).filter(Boolean))];
+ document.getElementById("translatorGrid").innerHTML=translators.length?translators.map(t=>`<div class="movie" style="padding:15px;color:#d6ad55">${safe(t)}</div>`).join(""):"<p id='message'>Translators will appear here.</p>";
+}
+
+function setCategory(c){activeCategory=c;renderAll()}
+
+function openMovie(id){
+ const m=movies.find(x=>String(x.id)===String(id));if(!m)return;
+ let trailer="";
+ if(m.trailer_url){
+  const yt=m.trailer_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/);
+  trailer=yt?`<iframe width="100%" height="300" src="https://www.youtube.com/embed/${safe(yt[1])}" allowfullscreen></iframe>`:
+  `<video controls playsinline src="${safe(m.trailer_url)}"></video>`;
+ }
+ document.getElementById("modalContent").innerHTML=`
+ <img src="${safe(m.poster_url||'')}" alt="${safe(m.title)} poster">
+ <h2>${safe(m.title)}</h2>
+ <p>${safe(m.synopsis||'')}</p>
+ <p>Category: ${safe(m.category||'')} · ${safe(m.release_year||'')} · ${safe(m.country||'')}</p>
+ <p>Translator: ${safe(m.translator||m.translator_name||'')}</p>
+ <div class="clear"></div>
+ <h3>Watch Trailer</h3>
+ ${trailer||"<p>Trailer not available yet.</p>"}
+ <p><a class="btn" href="${safe(m.download_url||'#')}" target="_blank" rel="noopener">Watch Full Movie</a></p>
+ <div id="seasonsArea"></div>`;
+ document.getElementById("movieModal").style.display="block";
+ if(m.content_type==="series")loadSeasons(m.id);
+}
+
+async function loadSeasons(movieId){
+ const area=document.getElementById("seasonsArea");
+ const {data,error}=await db.from("seasons").select("*").eq("movie_id",movieId).order("season_number");
+ if(error||!data?.length){area.innerHTML="<p>No seasons added yet.</p>";return}
+ area.innerHTML="<h3>Seasons & Episodes</h3>"+data.map(s=>`<div><h4>Season ${safe(s.season_number)}: ${safe(s.title||'')}</h4><div id="season-${s.id}">Loading episodes...</div></div>`).join("");
+ for(const s of data){
+  const {data:eps}=await db.from("episodes").select("*").eq("season_id",s.id).order("episode_number");
+  const el=document.getElementById("season-"+s.id);
+  if(el)el.innerHTML=(eps||[]).map(e=>`<p>Episode ${safe(e.episode_number)} — ${safe(e.title||'')} <a class="btn dark" href="${safe(e.trailer_url||e.download_url||'#')}" target="_blank" rel="noopener">Watch</a></p>`).join("")||"No episodes yet.";
+ }
+}
+function closeModal(){document.getElementById("movieModal").style.display="none"}
+document.getElementById("movieModal").addEventListener("click",e=>{if(e.target.id==="movieModal")closeModal()});
+loadMovies();
+</script>
+</body>
+  </html>
