@@ -7,6 +7,7 @@
 <meta name="theme-color" content="#080808">
 <title>Rebaflm | Movies & Series</title>
 <meta name="description" content="Discover movies, series, trailers and entertainment on Rebaflm.">
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
@@ -15,7 +16,6 @@
  --bg:#080808;
  --card:#171717;
  --muted:#aaa;
- --line:#303030;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -340,9 +340,10 @@ footer a{display:block;margin:9px 0;color:#aaa}
 
 const SUPABASE_URL="https://xplntbsngafgcercowsp.supabase.co";
 const SUPABASE_KEY="sb_publishable_GZyb3rumXDyVQhy1dflV-A_-IOklH4E";
-const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
 const $=id=>document.getElementById(id);
 
+let db=null;
 let movies=[];
 let featuredMovie=null;
 let expanded={};
@@ -365,7 +366,11 @@ const translatorNames=[
 
 function safe(value){
  return String(value??"").replace(/[&<>"']/g,c=>({
-  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  "&":"&amp;",
+  "<":"&lt;",
+  ">":"&gt;",
+  '"':"&quot;",
+  "'":"&#39;"
  }[c]));
 }
 
@@ -373,7 +378,9 @@ function safeURL(value){
  try{
   const u=new URL(String(value||""));
   return ["https:","http:"].includes(u.protocol)?u.href:"";
- }catch(e){return ""}
+ }catch(e){
+  return "";
+ }
 }
 
 function poster(movie){
@@ -385,12 +392,15 @@ function timeAgo(date){
  if(!date)return "";
  const time=new Date(date).getTime();
  if(!Number.isFinite(time))return "";
+
  const days=Math.max(0,Math.floor((Date.now()-time)/86400000));
+
  if(days===0)return "Today";
  if(days===1)return "1 day ago";
  if(days<7)return days+" days ago";
  if(days<30)return Math.floor(days/7)+" weeks ago";
  if(days<365)return Math.floor(days/30)+" months ago";
+
  return Math.floor(days/365)+" years ago";
 }
 
@@ -429,6 +439,7 @@ function showGrid(id,list,limit=6){
   :'<p class="empty">No content available yet.</p>';
 
  const button=document.querySelector(`[data-more="${id}"]`);
+
  if(button){
   button.style.display=list.length>limit?"inline-block":"none";
   button.textContent=expandedNow?"Show Less ↑":"View More →";
@@ -486,6 +497,7 @@ function renderTranslators(){
 
 function renderCategories(list){
  const films=list.filter(m=>m.content_type!=="series");
+
  const cats=[...new Set(
   films.map(m=>m.category).filter(Boolean)
  )];
@@ -559,7 +571,6 @@ async function loadSeriesDetails(){
   if(error)throw error;
 
   const seasonRows=seasons||[];
-  const seasonIds=seasonRows.map(s=>s.id);
 
   seasonRows.forEach(s=>{
    if(!seriesDetails[s.movie_id]){
@@ -568,7 +579,7 @@ async function loadSeriesDetails(){
    seriesDetails[s.movie_id].seasons++;
   });
 
-  if(seasonIds.length){
+  if(seasonRows.length){
    const {data:episodes,error:episodeError}=await db.from("episodes")
     .select("season_id");
 
@@ -579,6 +590,7 @@ async function loadSeriesDetails(){
 
    (episodes||[]).forEach(ep=>{
     const movieId=seasonToMovie[ep.season_id];
+
     if(movieId&&seriesDetails[movieId]){
      seriesDetails[movieId].episodes++;
     }
@@ -594,26 +606,53 @@ async function loadMovies(){
   '<p class="empty">Loading movies...</p>';
 
  try{
-  const {data,error}=await db.from("movies")
-   .select("*")
-   .eq("is_published",true)
-   .order("created_at",{ascending:false});
+  if(!window.supabase){
+   throw new Error("Supabase library did not load.");
+  }
 
-  if(error)throw error;
+  if(!db){
+   db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  }
 
-  movies=data||[];
-  await loadSeriesDetails();
+  // Igihe ntarengwa cyo gutegereza amakuru ya movies
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),15000);
+
+  let result;
+
+  try{
+   result=await db.from("movies")
+    .select("*")
+    .eq("is_published",true)
+    .order("created_at",{ascending:false})
+    .abortSignal(controller.signal);
+  }finally{
+   clearTimeout(timeout);
+  }
+
+  if(result.error)throw result.error;
+
+  movies=result.data||[];
+
+  // Erekana movies ako kanya, ntutegereze Seasons na Episodes
   renderAll();
+
+  // Ibi bice bikurikiraho mu buryo butabangamira movies
+  loadSeriesDetails().then(()=>{
+   renderAll();
+  });
 
  }catch(error){
   console.error("Rebaflm loading error:",error);
+
   $("recentGrid").innerHTML=
-   '<p class="empty">Movies could not load. Please check your connection.</p>';
+   '<p class="empty">Movies could not load. Please refresh or check your connection.</p>';
  }
 }
 
 function trailerHTML(url){
  const clean=safeURL(url);
+
  if(!clean)return "<p>Trailer not available yet.</p>";
 
  try{
@@ -623,6 +662,7 @@ function trailerHTML(url){
   if(u.hostname.includes("youtube.com")){
    videoId=u.searchParams.get("v")||"";
   }
+
   if(u.hostname==="youtu.be"){
    videoId=u.pathname.slice(1);
   }
@@ -633,6 +673,7 @@ function trailerHTML(url){
   }
 
   return `<video controls playsinline src="${safe(clean)}"></video>`;
+
  }catch(e){
   return "<p>Trailer not available yet.</p>";
  }
@@ -710,23 +751,4 @@ async function loadSeasons(movieId){
 
    const {data:episodes,error:episodeError}=await db.from("episodes")
     .select("*").eq("season_id",season.id)
-    .order("episode_number");
-
-   const episodeBox=block.querySelector("div");
-
-   if(episodeError){
-    episodeBox.textContent="Episodes could not load.";
-    continue;
-   }
-
-   episodeBox.className="";
-   episodeBox.innerHTML=(episodes||[]).map(ep=>{
-    const link=safeURL(ep.download_url);
-
-    return `
-     <div class="episode">
-      Episode ${safe(ep.episode_number)} — ${safe(ep.title||"")}
-      ${link
-       ?`<a class="btn dark" href="${safe(link)}"
-          target="_blank" rel="noopener noreferrer">Watch</a>`
-     
+    .order("episode_numb
