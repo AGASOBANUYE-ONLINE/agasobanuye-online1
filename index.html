@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,6 +15,7 @@
  --bg:#080808;
  --card:#171717;
  --muted:#aaa;
+ --line:#303030;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -22,40 +24,45 @@ body{
  font-family:Arial,Helvetica,sans-serif
 }
 a{color:inherit;text-decoration:none}
+button{font-family:inherit}
 header{
  position:sticky;top:0;z-index:20;
  background:#101010;border-bottom:1px solid #292929;
- padding:15px 4%;display:flex;align-items:center;
+ padding:14px 4%;display:flex;align-items:center;
  justify-content:space-between;gap:15px
 }
-.logo{font-size:24px;font-weight:900;color:var(--gold)}
-nav{display:flex;gap:18px;flex-wrap:wrap}
+.logo{font-size:25px;font-weight:900;color:var(--gold)}
+nav{display:flex;gap:17px;flex-wrap:wrap}
 nav a{font-size:13px;color:#ddd}
-nav a:hover{color:var(--gold)}
-.search-area{padding:15px 4%;background:#101010}
+nav a:hover,footer a:hover{color:var(--gold)}
+.search-area{padding:14px 4%;background:#101010}
 .search-area input{
  width:100%;padding:13px 16px;border-radius:7px;
- border:1px solid #333;background:#202020;color:#fff;
- font-size:15px;outline:none
+ border:1px solid #333;background:#202020;
+ color:#fff;font-size:15px;outline:none
 }
 .search-area input:focus{border-color:var(--gold)}
 .hero{
- min-height:390px;margin:18px 4%;padding:30px;
+ min-height:370px;margin:18px 4%;padding:30px;
  display:flex;align-items:center;border-radius:10px;
- background:linear-gradient(90deg,#000 5%,#000c 50%,#0004),
+ background:linear-gradient(90deg,#000 5%,#000d 55%,#0005),
  url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1600') center/cover
 }
 .hero-content{max-width:650px}
-.eyebrow{color:var(--gold);font-size:12px;font-weight:bold;letter-spacing:2px}
+.eyebrow{
+ color:var(--gold);font-size:12px;
+ font-weight:bold;letter-spacing:2px
+}
 .hero h1{font-size:42px;margin:12px 0}
 .hero p{color:#ddd;line-height:1.7;max-width:550px}
 .btn{
  display:inline-block;background:var(--gold);color:#111;
- padding:12px 19px;border:0;border-radius:5px;
+ padding:11px 18px;border:0;border-radius:5px;
  font-weight:bold;cursor:pointer;margin:7px 6px 0 0
 }
 .btn.dark{background:#333;color:white}
-section{padding:12px 4%;margin-bottom:12px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+section{padding:12px 4%;margin-bottom:13px}
 .section-head{
  display:flex;align-items:center;justify-content:space-between;
  gap:10px;margin:18px 0
@@ -64,7 +71,10 @@ section{padding:12px 4%;margin-bottom:12px}
  font-size:21px;margin:0;padding-left:11px;
  border-left:4px solid var(--gold)
 }
-.view-more{font-size:12px;color:var(--gold)}
+.view-more{
+ font-size:12px;color:var(--gold);
+ background:none;border:0;cursor:pointer
+}
 .grid{
  display:grid;grid-template-columns:repeat(6,minmax(0,1fr));
  gap:14px
@@ -80,7 +90,11 @@ section{padding:12px 4%;margin-bottom:12px}
 }
 .movie-info{padding:10px}
 .movie h3{font-size:14px;margin:0 0 7px;line-height:1.4}
-.movie small{font-size:11px;color:var(--muted)}
+.movie small{font-size:11px;color:var(--muted);line-height:1.6}
+.movie .translator-name{
+ display:block;color:var(--gold);margin-top:6px
+}
+.movie .time{display:block;color:#888;margin-top:4px}
 .tag{color:var(--gold)}
 .featured{
  display:grid;grid-template-columns:220px 1fr;gap:25px;
@@ -92,24 +106,39 @@ section{padding:12px 4%;margin-bottom:12px}
 }
 .featured h2{font-size:27px;color:var(--gold);margin:10px 0}
 .featured p{color:#ccc;line-height:1.6}
-.category-buttons{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
-.category-buttons button{
- background:#222;color:#ddd;border:1px solid #333;
- padding:9px 13px;border-radius:5px;cursor:pointer
+.translator-card{
+ background:#171717;padding:17px 10px;
+ border:1px solid #292929;border-radius:8px;
+ text-align:center;transition:.2s;cursor:pointer
 }
-.category-buttons button.active{
- background:var(--gold);color:#111;border-color:var(--gold)
+.translator-card:hover{
+ border-color:var(--gold);transform:translateY(-3px)
 }
-.translator{
- background:#171717;padding:18px;border-radius:7px;
- text-align:center;color:var(--gold);font-weight:bold
+.translator-avatar{
+ width:58px;height:58px;margin:0 auto 10px;
+ border-radius:50%;display:flex;align-items:center;
+ justify-content:center;
+ background:linear-gradient(135deg,#d6ad55,#74551e);
+ color:#111;font-size:19px;font-weight:bold
 }
+.translator-card h3{font-size:13px;margin:0;color:#eee}
+.category-row{margin-top:28px}
 .empty{color:#999;font-size:13px;padding:15px 0}
 footer{
  background:#111;padding:35px 4%;margin-top:35px;
- text-align:center;color:#aaa;font-size:13px
+ color:#aaa;font-size:13px
 }
-footer strong{font-size:22px;color:var(--gold)}
+.footer-grid{
+ display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:25px
+}
+footer h3{color:#fff;font-size:15px}
+footer strong{font-size:24px;color:var(--gold)}
+footer p{line-height:1.7}
+footer a{display:block;margin:9px 0;color:#aaa}
+.footer-bottom{
+ border-top:1px solid #292929;margin-top:25px;
+ padding-top:18px;text-align:center
+}
 .modal{
  display:none;position:fixed;inset:0;background:#000e;
  z-index:50;overflow:auto;padding:18px
@@ -129,13 +158,16 @@ footer strong{font-size:22px;color:var(--gold)}
 .modal h2{color:var(--gold)}
 .modal p{color:#ccc;line-height:1.6}
 .modal video,.modal iframe{
- width:100%;height:330px;border:0;background:#000;
- margin-top:10px
+ width:100%;height:330px;border:0;
+ background:#000;margin-top:10px
 }
 .clear{clear:both}
-.episode{padding:10px;background:#222;margin:7px 0;border-radius:5px}
+.episode{
+ padding:10px;background:#222;margin:7px 0;border-radius:5px
+}
 @media(max-width:950px){
  .grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .footer-grid{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:600px){
  header{align-items:flex-start;flex-direction:column}
@@ -144,7 +176,7 @@ footer strong{font-size:22px;color:var(--gold)}
  .hero{min-height:280px;padding:22px}
  .hero h1{font-size:29px}
  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
- .movie img{height:220px}
+ .movie img{height:210px}
  .featured{grid-template-columns:115px 1fr;gap:13px;padding:13px}
  .featured img{height:175px}
  .featured h2{font-size:19px}
@@ -152,6 +184,7 @@ footer strong{font-size:22px;color:var(--gold)}
  .section-title{font-size:18px}
  .modal-poster{width:110px;height:160px}
  .modal video,.modal iframe{height:230px}
+ .footer-grid{grid-template-columns:1fr 1fr}
 }
 </style>
 </head>
@@ -164,13 +197,16 @@ footer strong{font-size:22px;color:var(--gold)}
   <a href="#">Home</a>
   <a href="#trending">Trending</a>
   <a href="#recent">Recent</a>
-  <a href="#series">Series</a>
+  <a href="#top">Top 10</a>
+  <a href="#series">Seasons</a>
   <a href="#categories">Categories</a>
+  <a href="#translators">Abasobanuzi</a>
  </nav>
 </header>
 
 <div class="search-area">
- <input id="search" type="search" placeholder="Search movies, series or translators...">
+ <input id="search" type="search"
+ placeholder="Search movies, series or translators...">
 </div>
 
 <div class="hero">
@@ -187,69 +223,109 @@ footer strong{font-size:22px;color:var(--gold)}
   <h2 class="section-title">Featured Drama</h2>
  </div>
  <div class="featured">
-  <img id="featuredPoster" src="https://via.placeholder.com/300x420?text=REBAFLM" alt="Featured movie">
+  <img id="featuredPoster"
+   src="https://via.placeholder.com/300x420?text=REBAFLM"
+   alt="Featured movie">
   <div>
    <div class="eyebrow">FEATURED</div>
    <h2 id="featuredTitle">Welcome to Rebaflm</h2>
    <p id="featuredText">Featured movies will appear here.</p>
    <div id="featuredMeta" class="tag"></div>
-   <div>
-    <button class="btn" id="featuredWatch" type="button">Watch Now</button>
-    <button class="btn dark" id="featuredTrailer" type="button">Trailer</button>
-   </div>
+   <button class="btn" id="featuredWatch" disabled>Watch Now</button>
+   <button class="btn dark" id="featuredTrailer" disabled>Trailer</button>
   </div>
  </div>
 </section>
 
 <section id="recent">
- <div class="section-head"><h2 class="section-title">Recent Movies</h2></div>
- <div class="grid" id="recentGrid"><p class="empty">Loading movies...</p></div>
+ <div class="section-head">
+  <h2 class="section-title">Recent</h2>
+  <button class="view-more" data-more="recentGrid">View More →</button>
+ </div>
+ <div class="grid" id="recentGrid">
+  <p class="empty">Loading movies...</p>
+ </div>
 </section>
 
 <section id="trending">
- <div class="section-head"><h2 class="section-title">Trending Movies</h2></div>
+ <div class="section-head">
+  <h2 class="section-title">Trending</h2>
+  <button class="view-more" data-more="trendingGrid">View More →</button>
+ </div>
  <div class="grid" id="trendingGrid"></div>
 </section>
 
 <section id="top">
- <div class="section-head"><h2 class="section-title">Top 10 Movies</h2></div>
+ <div class="section-head">
+  <h2 class="section-title">Top 10 Movies Everyone Is Watching This Week</h2>
+ </div>
  <div class="grid" id="topGrid"></div>
 </section>
 
 <section id="series">
- <div class="section-head"><h2 class="section-title">Popular Series</h2></div>
+ <div class="section-head">
+  <h2 class="section-title">Seasons</h2>
+  <button class="view-more" data-more="seriesGrid">View More →</button>
+ </div>
  <div class="grid" id="seriesGrid"></div>
 </section>
 
-<section id="seasons">
- <div class="section-head"><h2 class="section-title">Latest Series</h2></div>
- <div class="grid" id="seasonGrid"></div>
-</section>
-
 <section id="translators">
- <div class="section-head"><h2 class="section-title">Our Translators</h2></div>
+ <div class="section-head">
+  <h2 class="section-title">Abasobanuzi</h2>
+ </div>
  <div class="grid" id="translatorGrid"></div>
 </section>
 
 <section id="categories">
- <div class="section-head"><h2 class="section-title">Browse Categories</h2></div>
- <div class="category-buttons" id="categoryButtons"></div>
- <div class="grid" id="categoryGrid"></div>
+ <div class="section-head">
+  <h2 class="section-title">Categories</h2>
+ </div>
  <div id="categorySections"></div>
 </section>
 
-<section>
- <div class="section-head"><h2 class="section-title">About Rebaflm</h2></div>
+<section id="about">
+ <div class="section-head">
+  <h2 class="section-title">About Rebaflm</h2>
+ </div>
  <p style="color:#aaa;line-height:1.7">
-  Rebaflm is a movie and series discovery platform. Explore available titles,
-  read descriptions and find trailers and viewing links.
+  Rebaflm is a movie and series discovery platform.
+  Explore available titles, read descriptions and find trailers
+  and viewing links.
  </p>
 </section>
 
 <footer>
- <strong>Rebaflm</strong>
- <p>Movies • Series • Trailers • Entertainment</p>
- <p>© 2026 Rebaflm. All rights reserved.</p>
+ <div class="footer-grid">
+  <div>
+   <strong>Rebaflm</strong>
+   <p>Movies, series, trailers and entertainment.
+   Discover your next favourite story on Rebaflm.</p>
+  </div>
+  <div>
+   <h3>Quick Links</h3>
+   <a href="#">Home</a>
+   <a href="#recent">Recent</a>
+   <a href="#trending">Trending</a>
+   <a href="#top">Top 10</a>
+   <a href="#series">Seasons</a>
+  </div>
+  <div>
+   <h3>Explore</h3>
+   <a href="#categories">Categories</a>
+   <a href="#translators">Abasobanuzi</a>
+   <a href="#about">About Rebaflm</a>
+  </div>
+  <div>
+   <h3>Contact</h3>
+   <p>For enquiries and support, contact the Rebaflm website administrator.</p>
+   <h3>Follow Us</h3>
+   <p>Rebaflm social links will be added here.</p>
+  </div>
+ </div>
+ <div class="footer-bottom">
+  © 2026 Rebaflm. All rights reserved.
+ </div>
 </footer>
 
 <div class="modal" id="movieModal">
@@ -264,14 +340,28 @@ footer strong{font-size:22px;color:var(--gold)}
 
 const SUPABASE_URL="https://xplntbsngafgcercowsp.supabase.co";
 const SUPABASE_KEY="sb_publishable_GZyb3rumXDyVQhy1dflV-A_-IOklH4E";
-
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-
 const $=id=>document.getElementById(id);
 
 let movies=[];
-let activeCategory="All";
 let featuredMovie=null;
+let expanded={};
+let selectedTranslator="";
+let seriesDetails={};
+
+const translatorNames=[
+ "Rocky Kimomo",
+ "Sankara Da Premier",
+ "Gaheza Simba",
+ "PK - The Sound",
+ "Yanga",
+ "Junior Giti",
+ "Skov",
+ "Perfect",
+ "Mussa Savimbi",
+ "Master P",
+ "B the great"
+];
 
 function safe(value){
  return String(value??"").replace(/[&<>"']/g,c=>({
@@ -279,36 +369,77 @@ function safe(value){
  }[c]));
 }
 
+function safeURL(value){
+ try{
+  const u=new URL(String(value||""));
+  return ["https:","http:"].includes(u.protocol)?u.href:"";
+ }catch(e){return ""}
+}
+
 function poster(movie){
- return safe(movie.poster_url||"https://via.placeholder.com/300x420?text=REBAFLM");
+ return safeURL(movie.poster_url)||
+  "https://via.placeholder.com/300x420?text=REBAFLM";
+}
+
+function timeAgo(date){
+ if(!date)return "";
+ const time=new Date(date).getTime();
+ if(!Number.isFinite(time))return "";
+ const days=Math.max(0,Math.floor((Date.now()-time)/86400000));
+ if(days===0)return "Today";
+ if(days===1)return "1 day ago";
+ if(days<7)return days+" days ago";
+ if(days<30)return Math.floor(days/7)+" weeks ago";
+ if(days<365)return Math.floor(days/30)+" months ago";
+ return Math.floor(days/365)+" years ago";
 }
 
 function card(movie){
+ const translator=movie.translator||movie.translator_name||"";
+ const details=seriesDetails[movie.id]||{seasons:0,episodes:0};
+
  return `
  <article class="movie" data-id="${safe(movie.id)}">
   <img src="${poster(movie)}" alt="${safe(movie.title)}"
-   onerror="this.src='https://via.placeholder.com/300x420?text=No+Poster'">
+   onerror="this.onerror=null;this.src='https://via.placeholder.com/300x420?text=No+Poster'">
   <div class="movie-info">
    <h3>${safe(movie.title)}</h3>
    <small>${safe(movie.release_year||"")} ·
    <span class="tag">${safe(movie.category||"Movie")}</span></small>
+   ${movie.content_type==="series"
+    ?`<small class="translator-name">${details.seasons} Seasons · ${details.episodes} Episodes</small>`
+    :""}
+   ${translator
+    ?`<small class="translator-name">${safe(translator)}</small>`
+    :""}
+   <small class="time">${safe(timeAgo(movie.created_at))}</small>
   </div>
  </article>`;
 }
 
-function showGrid(id,list){
+function showGrid(id,list,limit=6){
  const el=$(id);
  if(!el)return;
- el.innerHTML=list.length
-  ?list.map(card).join("")
+
+ const expandedNow=!!expanded[id];
+ const visible=expandedNow?list:list.slice(0,limit);
+
+ el.innerHTML=visible.length
+  ?visible.map(card).join("")
   :'<p class="empty">No content available yet.</p>';
+
+ const button=document.querySelector(`[data-more="${id}"]`);
+ if(button){
+  button.style.display=list.length>limit?"inline-block":"none";
+  button.textContent=expandedNow?"Show Less ↑":"View More →";
+ }
 }
 
 function renderFeatured(){
  const featured=movies.find(m=>
   m.content_type!=="series" &&
   String(m.category||"").toLowerCase()==="drama"
- ) || movies.find(m=>m.content_type!=="series");
+ )||movies.find(m=>m.content_type!=="series");
 
  featuredMovie=featured||null;
 
@@ -316,7 +447,8 @@ function renderFeatured(){
   $("featuredTitle").textContent="Welcome to Rebaflm";
   $("featuredText").textContent="Featured movies will appear here.";
   $("featuredMeta").textContent="";
-  $("featuredPoster").src="https://via.placeholder.com/300x420?text=REBAFLM";
+  $("featuredPoster").src=
+   "https://via.placeholder.com/300x420?text=REBAFLM";
   $("featuredWatch").disabled=true;
   $("featuredTrailer").disabled=true;
   return;
@@ -326,87 +458,140 @@ function renderFeatured(){
  $("featuredTrailer").disabled=false;
  $("featuredPoster").src=poster(featured);
  $("featuredTitle").textContent=featured.title||"Featured Movie";
- $("featuredText").textContent=featured.synopsis||"Discover this movie on Rebaflm.";
- $("featuredMeta").textContent=
-  [featured.release_year,featured.category,featured.translator||featured.translator_name]
-  .filter(Boolean).join(" • ");
+ $("featuredText").textContent=
+  featured.synopsis||"Discover this movie on Rebaflm.";
+
+ $("featuredMeta").textContent=[
+  featured.release_year,
+  featured.category,
+  featured.translator||featured.translator_name
+ ].filter(Boolean).join(" • ");
 }
 
 function renderTranslators(){
  const el=$("translatorGrid");
  if(!el)return;
 
- const names=[...new Set(movies.map(m=>
-  m.translator||m.translator_name
- ).filter(Boolean))];
+ el.innerHTML=translatorNames.map(name=>{
+  const initials=name.split(/\s+/)
+   .map(w=>w[0]).join("").slice(0,2).toUpperCase();
 
- el.innerHTML=names.length
-  ?names.map(name=>`<div class="translator">${safe(name)}</div>`).join("")
-  :'<p class="empty">Translators will appear here.</p>';
+  return `
+   <div class="translator-card" data-translator="${safe(name)}">
+    <div class="translator-avatar">${safe(initials)}</div>
+    <h3>${safe(name)}</h3>
+   </div>`;
+ }).join("");
 }
 
-function renderCategories(){
- const cats=[...new Set(movies.map(m=>m.category).filter(Boolean))];
- const buttons=$("categoryButtons");
-
- if(buttons){
-  buttons.innerHTML=
-   `<button class="${activeCategory==="All"?"active":""}" data-category="All">All</button>`+
-   cats.map(c=>`<button data-category="${safe(c)}" class="${activeCategory===c?"active":""}">${safe(c)}</button>`).join("");
- }
-
- const films=movies.filter(m=>m.content_type!=="series");
- const chosen=activeCategory==="All"
-  ?films
-  :films.filter(m=>m.category===activeCategory);
-
- showGrid("categoryGrid",chosen);
+function renderCategories(list){
+ const films=list.filter(m=>m.content_type!=="series");
+ const cats=[...new Set(
+  films.map(m=>m.category).filter(Boolean)
+ )];
 
  const sections=$("categorySections");
  if(!sections)return;
 
  sections.innerHTML=cats.map((cat,index)=>{
-  const list=films.filter(m=>m.category===cat);
+  const items=films.filter(m=>m.category===cat);
+  const id="categoryGrid"+index;
+  const expandedNow=!!expanded[id];
+  const visible=expandedNow?items:items.slice(0,6);
+
   return `
-   <div style="margin-top:28px">
+   <div class="category-row">
     <div class="section-head">
      <h2 class="section-title">${safe(cat)}</h2>
+     ${items.length>6
+      ?`<button class="view-more" data-category-more="${id}">
+        ${expandedNow?"Show Less ↑":"View More →"}
+       </button>`
+      :""}
     </div>
-    <div class="grid" id="categoryRow${index}">
-     ${list.slice(0,6).map(card).join("")||'<p class="empty">No movies yet.</p>'}
+    <div class="grid" id="${id}">
+     ${visible.map(card).join("")||
+       '<p class="empty">No movies yet.</p>'}
     </div>
    </div>`;
- }).join("");
+ }).join("")||
+ '<p class="empty">Categories will appear when movies are added.</p>';
 }
 
 function renderAll(){
- const search=($("search")?.value||"").trim().toLowerCase();
+ const search=($("search").value||"").trim().toLowerCase();
 
- const filtered=movies.filter(m=>{
+ let filtered=movies.filter(m=>{
   const text=[
    m.title,m.category,m.translator,m.translator_name,
    m.country,m.release_year
   ].join(" ").toLowerCase();
+
   return text.includes(search);
  });
+
+ if(selectedTranslator){
+  filtered=filtered.filter(m=>
+   (m.translator||m.translator_name||"")===selectedTranslator
+  );
+ }
 
  const films=filtered.filter(m=>m.content_type!=="series");
  const series=filtered.filter(m=>m.content_type==="series");
 
- showGrid("recentGrid",films);
- showGrid("trendingGrid",films.slice(0,8));
- showGrid("topGrid",films.slice(0,10));
- showGrid("seriesGrid",series);
- showGrid("seasonGrid",series.slice(0,6));
+ showGrid("recentGrid",films,6);
+ showGrid("trendingGrid",films,8);
+ showGrid("topGrid",films.slice(0,10),10);
+ showGrid("seriesGrid",series,6);
 
  renderFeatured();
  renderTranslators();
- renderCategories();
+ renderCategories(filtered);
+}
+
+async function loadSeriesDetails(){
+ seriesDetails={};
+
+ try{
+  const {data:seasons,error}=await db.from("seasons")
+   .select("id,movie_id");
+
+  if(error)throw error;
+
+  const seasonRows=seasons||[];
+  const seasonIds=seasonRows.map(s=>s.id);
+
+  seasonRows.forEach(s=>{
+   if(!seriesDetails[s.movie_id]){
+    seriesDetails[s.movie_id]={seasons:0,episodes:0};
+   }
+   seriesDetails[s.movie_id].seasons++;
+  });
+
+  if(seasonIds.length){
+   const {data:episodes,error:episodeError}=await db.from("episodes")
+    .select("season_id");
+
+   if(episodeError)throw episodeError;
+
+   const seasonToMovie={};
+   seasonRows.forEach(s=>seasonToMovie[s.id]=s.movie_id);
+
+   (episodes||[]).forEach(ep=>{
+    const movieId=seasonToMovie[ep.season_id];
+    if(movieId&&seriesDetails[movieId]){
+     seriesDetails[movieId].episodes++;
+    }
+   });
+  }
+ }catch(error){
+  console.warn("Series counts unavailable:",error);
+ }
 }
 
 async function loadMovies(){
- const recent=$("recentGrid");
- if(recent)recent.innerHTML='<p class="empty">Loading movies...</p>';
+ $("recentGrid").innerHTML=
+  '<p class="empty">Loading movies...</p>';
 
  try{
   const {data,error}=await db.from("movies")
@@ -417,27 +602,40 @@ async function loadMovies(){
   if(error)throw error;
 
   movies=data||[];
+  await loadSeriesDetails();
   renderAll();
 
  }catch(error){
   console.error("Rebaflm loading error:",error);
-  if(recent){
-   recent.innerHTML='<p class="empty">Movies could not load. Please check your connection.</p>';
-  }
+  $("recentGrid").innerHTML=
+   '<p class="empty">Movies could not load. Please check your connection.</p>';
  }
 }
 
 function trailerHTML(url){
- if(!url)return "<p>Trailer not available yet.</p>";
+ const clean=safeURL(url);
+ if(!clean)return "<p>Trailer not available yet.</p>";
 
- const match=url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?]+)/);
+ try{
+  const u=new URL(clean);
+  let videoId="";
 
- if(match){
-  return `<iframe src="https://www.youtube.com/embed/${safe(match[1])}"
-   allowfullscreen loading="lazy"></iframe>`;
+  if(u.hostname.includes("youtube.com")){
+   videoId=u.searchParams.get("v")||"";
+  }
+  if(u.hostname==="youtu.be"){
+   videoId=u.pathname.slice(1);
+  }
+
+  if(videoId){
+   return `<iframe src="https://www.youtube.com/embed/${safe(videoId)}"
+    allowfullscreen loading="lazy"></iframe>`;
+  }
+
+  return `<video controls playsinline src="${safe(clean)}"></video>`;
+ }catch(e){
+  return "<p>Trailer not available yet.</p>";
  }
-
- return `<video controls playsinline src="${safe(url)}"></video>`;
 }
 
 function openMovie(id){
@@ -447,8 +645,11 @@ function openMovie(id){
  const content=$("modalContent");
  if(!content)return;
 
+ const download=safeURL(movie.download_url);
+
  content.innerHTML=`
-  <img class="modal-poster" src="${poster(movie)}" alt="${safe(movie.title)}">
+  <img class="modal-poster" src="${poster(movie)}"
+   alt="${safe(movie.title)}">
   <h2>${safe(movie.title)}</h2>
   <p>${safe(movie.synopsis||"No description available.")}</p>
   <p>
@@ -461,8 +662,9 @@ function openMovie(id){
   <h3>Watch Trailer</h3>
   ${trailerHTML(movie.trailer_url)}
   <p>
-   ${movie.download_url
-    ?`<a class="btn" href="${safe(movie.download_url)}" target="_blank" rel="noopener noreferrer">Watch Movie</a>`
+   ${download
+    ?`<a class="btn" href="${safe(download)}"
+       target="_blank" rel="noopener noreferrer">Watch / Download</a>`
     :'<span class="empty">Viewing link not available yet.</span>'}
   </p>
   <div id="seasonsArea"></div>
@@ -479,7 +681,8 @@ async function loadSeasons(movieId){
  const area=$("seasonsArea");
  if(!area)return;
 
- area.innerHTML="<h3>Seasons & Episodes</h3><p>Loading seasons...</p>";
+ area.innerHTML=
+  "<h3>Seasons & Episodes</h3><p>Loading seasons...</p>";
 
  try{
   const {data,error}=await db.from("seasons")
@@ -488,7 +691,8 @@ async function loadSeasons(movieId){
   if(error)throw error;
 
   if(!data||!data.length){
-   area.innerHTML="<h3>Seasons & Episodes</h3><p>No seasons added yet.</p>";
+   area.innerHTML=
+    "<h3>Seasons & Episodes</h3><p>No seasons added yet.</p>";
    return;
   }
 
@@ -496,13 +700,17 @@ async function loadSeasons(movieId){
 
   for(const season of data){
    const block=document.createElement("div");
+
    block.innerHTML=`
-    <h4>Season ${safe(season.season_number)} ${safe(season.title||"")}</h4>
+    <h4>Season ${safe(season.season_number)}
+     ${safe(season.title||"")}</h4>
     <div class="empty">Loading episodes...</div>`;
+
    area.appendChild(block);
 
    const {data:episodes,error:episodeError}=await db.from("episodes")
-    .select("*").eq("season_id",season.id).order("episode_number");
+    .select("*").eq("season_id",season.id)
+    .order("episode_number");
 
    const episodeBox=block.querySelector("div");
 
@@ -512,58 +720,13 @@ async function loadSeasons(movieId){
    }
 
    episodeBox.className="";
-   episodeBox.innerHTML=(episodes||[]).map(ep=>`
-    <div class="episode">
-     Episode ${safe(ep.episode_number)} — ${safe(ep.title||"")}
-     ${ep.download_url
-      ?`<a class="btn dark" href="${safe(ep.download_url)}" target="_blank" rel="noopener noreferrer">Watch</a>`
-      :""}
-    </div>
-   `).join("")||"No episodes available.";
-  }
+   episodeBox.innerHTML=(episodes||[]).map(ep=>{
+    const link=safeURL(ep.download_url);
 
- }catch(error){
-  console.error(error);
-  area.innerHTML="<p>Seasons could not load.</p>";
- }
-}
-
-function closeModal(){
- $("movieModal").style.display="none";
-}
-
-$("search").addEventListener("input",renderAll);
-
-$("closeModal").addEventListener("click",closeModal);
-
-$("movieModal").addEventListener("click",event=>{
- if(event.target===$("movieModal"))closeModal();
-});
-
-document.addEventListener("click",event=>{
- const movieCard=event.target.closest("[data-id]");
- if(movieCard){
-  openMovie(movieCard.dataset.id);
-  return;
- }
-
- const categoryButton=event.target.closest("[data-category]");
- if(categoryButton){
-  activeCategory=categoryButton.dataset.category;
-  renderCategories();
- }
-});
-
-$("featuredWatch").addEventListener("click",()=>{
- if(featuredMovie)openMovie(featuredMovie.id);
-});
-
-$("featuredTrailer").addEventListener("click",()=>{
- if(featuredMovie)openMovie(featuredMovie.id);
-});
-
-loadMovies();
-</script>
-
-</body>
- </html>
+    return `
+     <div class="episode">
+      Episode ${safe(ep.episode_number)} — ${safe(ep.title||"")}
+      ${link
+       ?`<a class="btn dark" href="${safe(link)}"
+          target="_blank" rel="noopener noreferrer">Watch</a>`
+     
