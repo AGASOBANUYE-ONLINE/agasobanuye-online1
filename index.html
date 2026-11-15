@@ -18,7 +18,7 @@ button{cursor:pointer;font:inherit}
 header{background:#111;position:sticky;top:0;z-index:20;border-bottom:1px solid #292929}
 .nav{max-width:1250px;margin:auto;padding:12px 4%;display:flex;align-items:center;justify-content:space-between;gap:15px}
 .brand{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.brand-picture{width:38px;height:38px;object-fit:cover;border-radius:50%;border:2px solid var(--gold);cursor:pointer;display:block}
+.brand-picture{width:38px;height:38px;object-fit:cover;border-radius:50%;border:2px solid var(--gold);cursor:pointer;display:block;background:#222}
 .logo{font-size:25px;line-height:38px;font-weight:900;color:var(--gold)}
 nav{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
 nav a{font-size:14px;color:#ddd}
@@ -101,7 +101,7 @@ footer a{display:block;margin:9px 0;font-size:14px}
     src="https://image.tmdb.org/t/p/original/gCcTrBYAQPhFe2zBatpq46oavyV.jpg"
     alt="Rebaflm Profile Picture"
     onclick="openFoxProfile()"
-    onerror="this.style.display='none'"
+    onerror="foxImageFallback(this)"
    >
    <a class="logo" href="#">REBAFLM</a>
   </div>
@@ -195,6 +195,7 @@ footer a{display:block;margin:9px 0;font-size:14px}
   id="foxFullImage"
   src="https://image.tmdb.org/t/p/original/gCcTrBYAQPhFe2zBatpq46oavyV.jpg"
   alt="Fox Volant full picture"
+  onerror="foxImageFallback(this)"
  >
 
  <div class="fox-actions">
@@ -217,8 +218,26 @@ const SUPABASE_KEY="sb_publishable_GZyb3rumXDyVQhy1dflV-A_-IOklH4E";
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 const FOX_IMAGE_URL="https://image.tmdb.org/t/p/original/gCcTrBYAQPhFe2zBatpq46oavyV.jpg";
+const FOX_IMAGE_SMALL="https://image.tmdb.org/t/p/w500/gCcTrBYAQPhFe2zBatpq46oavyV.jpg";
 
 let movies=[];
+
+/* PROFILE IMAGE FALLBACK */
+function foxImageFallback(img){
+ if(!img.dataset.fallback){
+  img.dataset.fallback="small";
+  img.src=FOX_IMAGE_SMALL;
+  return;
+ }
+
+ if(img.dataset.fallback==="small"){
+  img.dataset.fallback="placeholder";
+  img.src="https://placehold.co/400x600/171717/d6ad55?text=REBAFLM";
+  return;
+ }
+
+ img.onerror=null;
+}
 
 const translators=[
  "Rocky Kimomo","Sankara Da Premier","Gaheza Simba",
@@ -523,5 +542,4 @@ loadMovies();
 </script>
 
 </body>
-                                                                       </html>
-                                                                      
+</html>
