@@ -4,206 +4,468 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090909">
 <title>Rebaflm Admin</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-:root{--gold:#d6ad55;--bg:#090909;--card:#171717}
+:root{
+ --gold:#d6ad55;
+ --bg:#090909;
+ --card:#171717;
+ --danger:#a52b2b;
+}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:white;font-family:Arial,sans-serif}
-header{padding:16px;background:#151515;border-bottom:1px solid #333;color:var(--gold);font-weight:bold;display:flex;justify-content:space-between;align-items:center}
-main{max-width:950px;margin:20px auto;padding:12px}
-.panel{background:var(--card);padding:18px;border-radius:10px;margin-bottom:18px}
+body{
+ margin:0;
+ background:var(--bg);
+ color:white;
+ font-family:Arial,sans-serif;
+}
+header{
+ padding:16px;
+ background:#151515;
+ border-bottom:1px solid #333;
+ color:var(--gold);
+ font-weight:bold;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+}
+main{
+ max-width:950px;
+ margin:20px auto;
+ padding:12px;
+}
+.panel{
+ background:var(--card);
+ padding:18px;
+ border-radius:10px;
+ margin-bottom:18px;
+}
 h2,h3{color:var(--gold)}
-input,textarea,select{width:100%;padding:12px;margin:7px 0 13px;background:#242424;color:white;border:1px solid #444;border-radius:6px}
-textarea{min-height:75px}
-label{font-size:13px;color:#ddd}
-button{background:var(--gold);color:#111;border:0;padding:11px 15px;border-radius:5px;font-weight:bold;cursor:pointer;margin:4px}
+input,textarea,select{
+ width:100%;
+ padding:13px;
+ margin:7px 0 13px;
+ background:#242424;
+ color:white;
+ border:1px solid #444;
+ border-radius:7px;
+ font-size:16px;
+}
+textarea{min-height:85px}
+label{
+ display:block;
+ font-size:14px;
+ color:#ddd;
+ margin-top:5px;
+}
+button{
+ background:var(--gold);
+ color:#111;
+ border:0;
+ padding:13px 16px;
+ border-radius:6px;
+ font-weight:bold;
+ cursor:pointer;
+ margin:4px;
+ font-size:15px;
+}
+button:disabled{
+ opacity:.5;
+ cursor:not-allowed;
+}
 .secondary{background:#333;color:white}
-.danger{background:#8b2929;color:white}
-.hidden{display:none}
-.item,.entry{padding:13px;background:#242424;margin:9px 0;border-radius:7px}
+.danger{background:var(--danger);color:white}
+.hidden{display:none!important}
+.item,.entry{
+ padding:14px;
+ background:#242424;
+ margin:10px 0;
+ border-radius:7px;
+}
 .entry h3{margin-top:0}
-#status,#loginStatus{padding:10px;color:var(--gold)}
-hr{border:0;border-top:1px solid #444;margin:20px 0}
+#status,#loginStatus{
+ padding:12px;
+ color:var(--gold);
+ overflow-wrap:anywhere;
+}
+#status:empty,#loginStatus:empty{display:none}
+hr{
+ border:0;
+ border-top:1px solid #444;
+ margin:22px 0;
+}
+.small{
+ color:#aaa;
+ font-size:13px;
+}
+@media(max-width:600px){
+ main{padding:10px}
+ .panel{padding:14px}
+ button{max-width:100%}
+}
 </style>
 </head>
+
 <body>
 
 <header>
-<span>REBAFLM — ADMIN</span>
-<button class="secondary" id="logoutBtn" onclick="logout()" style="display:none">Logout</button>
+ <span>REBAFLM — ADMIN</span>
+ <button class="secondary" id="logoutBtn"
+ onclick="logout()" style="display:none">Logout</button>
 </header>
 
 <main>
+
+<!-- LOGIN -->
 <div id="loginPanel" class="panel">
-<h2>Admin Login</h2>
-<label>Email</label>
-<input id="email" type="email" placeholder="Admin email">
-<label>Password</label>
-<input id="password" type="password" placeholder="Password">
-<button onclick="login()">LOGIN</button>
-<div id="loginStatus"></div>
+ <h2>Admin Login</h2>
+
+ <label>Email</label>
+ <input id="email" type="email" placeholder="Admin email">
+
+ <label>Password</label>
+ <input id="password" type="password" placeholder="Password">
+
+ <button id="loginButton" onclick="login()">LOGIN</button>
+ <div id="loginStatus"></div>
 </div>
 
+<!-- DASHBOARD -->
 <div id="dashboard" class="hidden">
-<div class="panel">
-<h2>Dashboard</h2>
-<button onclick="showTab('movies')">Add Movies</button>
-<button onclick="showTab('series')">Add Series</button>
-<button onclick="showTab('seasons')">Seasons & Episodes</button>
-<button onclick="showTab('manage')">Manage Content</button>
-<div id="status"></div>
-</div>
 
-<div class="panel" id="moviesTab">
-<h2>Add Multiple Movies</h2>
-<div id="movieEntries"></div>
-<button onclick="addMovieEntry()">+ Add Another Movie</button>
-<button onclick="saveMovies()">SAVE ALL MOVIES</button>
-</div>
+ <div class="panel">
+  <h2>Dashboard</h2>
 
-<div class="panel hidden" id="seriesTab">
-<h2>Add Multiple Series</h2>
-<div id="seriesEntries"></div>
-<button onclick="addSeriesEntry()">+ Add Another Series</button>
-<button onclick="saveSeries()">SAVE ALL SERIES</button>
-</div>
+  <button onclick="showTab('movies')">Add Movies</button>
+  <button onclick="showTab('series')">Add Series</button>
+  <button onclick="showTab('seasons')">Seasons & Episodes</button>
+  <button onclick="showTab('manage')">Manage Content</button>
 
-<div class="panel hidden" id="seasonsTab">
-<h2>Add Multiple Seasons</h2>
-<label>Select Series</label>
-<select id="seasonMovie"></select>
-<div id="seasonEntries"></div>
-<button onclick="addSeasonEntry()">+ Add Another Season</button>
-<button onclick="saveSeasons()">SAVE ALL SEASONS</button>
+  <div id="status"></div>
+ </div>
 
-<hr>
-<h2>Add Multiple Episodes</h2>
-<label>Select Season</label>
-<select id="episodeSeason"></select>
-<div id="episodeEntries"></div>
-<button onclick="addEpisodeEntry()">+ Add Another Episode</button>
-<button onclick="saveEpisodes()">SAVE ALL EPISODES</button>
-</div>
+ <!-- MOVIES -->
+ <div class="panel hidden" id="moviesTab">
+  <h2>Add Multiple Movies</h2>
 
-<div class="panel hidden" id="manageTab">
-<h2>Manage Movies & Series</h2>
-<div id="contentList">Loading...</div>
-</div>
+  <div id="movieEntries"></div>
+
+  <button onclick="addMovieEntry()">+ Add Another Movie</button>
+  <button id="saveMoviesButton" onclick="saveMovies()">SAVE ALL MOVIES</button>
+ </div>
+
+ <!-- SERIES -->
+ <div class="panel hidden" id="seriesTab">
+  <h2>Add Multiple Series</h2>
+
+  <div id="seriesEntries"></div>
+
+  <button onclick="addSeriesEntry()">+ Add Another Series</button>
+  <button id="saveSeriesButton" onclick="saveSeries()">SAVE ALL SERIES</button>
+ </div>
+
+ <!-- SEASONS AND EPISODES -->
+ <div class="panel hidden" id="seasonsTab">
+
+  <h2>Add Multiple Seasons</h2>
+
+  <label>Select Series</label>
+  <select id="seasonMovie">
+   <option value="">Select a series</option>
+  </select>
+
+  <div id="seasonEntries"></div>
+
+  <button onclick="addSeasonEntry()">+ Add Another Season</button>
+  <button id="saveSeasonsButton" onclick="saveSeasons()">SAVE ALL SEASONS</button>
+
+  <hr>
+
+  <h2>Add Multiple Episodes</h2>
+
+  <label>Select Season</label>
+  <select id="episodeSeason">
+   <option value="">Select a season</option>
+  </select>
+
+  <div id="episodeEntries"></div>
+
+  <button onclick="addEpisodeEntry()">+ Add Another Episode</button>
+  <button id="saveEpisodesButton" onclick="saveEpisodes()">SAVE ALL EPISODES</button>
+
+ </div>
+
+ <!-- MANAGE -->
+ <div class="panel hidden" id="manageTab">
+  <h2>Manage Movies & Series</h2>
+  <button class="secondary" onclick="refreshData()">REFRESH LIST</button>
+  <div id="contentList">Loading...</div>
+ </div>
+
 </div>
 </main>
 
 <script>
+"use strict";
+
+/* SUPABASE CONNECTION */
 const SUPABASE_URL="https://xplntbsngafgcercowsp.supabase.co";
+
 const SUPABASE_KEY="sb_publishable_GZyb3rumXDyVQhy1dflV-A_-IOklH4E";
-const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-function message(t){
- document.getElementById("status").textContent=t;
+const db=supabase.createClient(
+ SUPABASE_URL,
+ SUPABASE_KEY
+);
+
+/* STATUS MESSAGE */
+function message(text){
+ document.getElementById("status").textContent=text;
 }
 
-function escapeHtml(s){
- return String(s||"").replace(/[&<>"']/g,c=>({
- "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
- }[c]));
+function loginMessage(text){
+ document.getElementById("loginStatus").textContent=text;
 }
 
+/* SAFE HTML */
+function escapeHtml(value){
+ return String(value ?? "").replace(/[&<>"']/g,function(char){
+  return {
+   "&":"&amp;",
+   "<":"&lt;",
+   ">":"&gt;",
+   '"':"&quot;",
+   "'":"&#39;"
+  }[char];
+ });
+}
+
+/* BUTTON LOADING */
+function buttonLoading(id,loading,text){
+ const button=document.getElementById(id);
+ if(!button)return;
+
+ button.disabled=loading;
+
+ if(loading){
+  button.dataset.originalText=button.textContent;
+  button.textContent="PLEASE WAIT...";
+ }else{
+  button.textContent=text || button.dataset.originalText || "SAVE";
+ }
+}
+
+/* LOGIN */
 async function login(){
  const email=document.getElementById("email").value.trim();
  const password=document.getElementById("password").value;
- const out=document.getElementById("loginStatus");
- out.textContent="Signing in...";
- const {data,error}=await db.auth.signInWithPassword({email,password});
- if(error){out.textContent="Login failed: "+error.message;return}
- const {data:admin,error:adminError}=await db.from("admins")
- .select("user_id").eq("user_id",data.user.id).maybeSingle();
- if(adminError||!admin){
-  await db.auth.signOut();
-  out.textContent="This account is not an administrator.";
+
+ if(!email || !password){
+  loginMessage("Enter your email and password.");
   return;
  }
- openDashboard();
+
+ buttonLoading("loginButton",true);
+
+ loginMessage("Signing in...");
+
+ try{
+  const {data,error}=await db.auth.signInWithPassword({
+   email:email,
+   password:password
+  });
+
+  if(error){
+   loginMessage("Login failed: "+error.message);
+   return;
+  }
+
+  const {data:admin,error:adminError}=await db
+   .from("admins")
+   .select("user_id")
+   .eq("user_id",data.user.id)
+   .maybeSingle();
+
+  if(adminError){
+   await db.auth.signOut();
+   loginMessage("Admin check failed: "+adminError.message);
+   return;
+  }
+
+  if(!admin){
+   await db.auth.signOut();
+   loginMessage("This account is not an administrator.");
+   return;
+  }
+
+  loginMessage("");
+  openDashboard();
+
+ }catch(error){
+  loginMessage("Login error: "+error.message);
+ }finally{
+  buttonLoading("loginButton",false,"LOGIN");
+ }
 }
 
+/* OPEN DASHBOARD */
 function openDashboard(){
  document.getElementById("loginPanel").classList.add("hidden");
  document.getElementById("dashboard").classList.remove("hidden");
  document.getElementById("logoutBtn").style.display="inline-block";
+
  refreshData();
 }
 
+/* LOGOUT */
 async function logout(){
  await db.auth.signOut();
  location.reload();
 }
 
+/* TABS */
 function showTab(tab){
- ["movies","series","seasons","manage"].forEach(x=>{
-  document.getElementById(x+"Tab").classList.toggle("hidden",x!==tab);
+ ["movies","series","seasons","manage"].forEach(function(name){
+  document.getElementById(name+"Tab")
+   .classList.toggle("hidden",name!==tab);
  });
 }
 
+/* MOVIE AND SERIES FORM */
 function movieFields(type){
  const prefix=type+"-"+Date.now()+"-"+Math.random().toString(36).slice(2);
+
  return `
  <div class="entry" data-entry="${prefix}">
- <h3>${type==="movie"?"Movie":"Series"}</h3>
- <label>Title</label><input data-f="title" placeholder="Title">
- <label>Description</label><textarea data-f="synopsis"></textarea>
- <label>Release Year</label><input data-f="year" type="number">
- <label>Country</label><input data-f="country">
- <label>Category</label>
- <select data-f="category">
- <option>Action</option><option>Romance</option><option>Horror</option>
- <option>Indian</option><option>Cartoon</option><option>Sci-fi</option>
- <option>Drama</option><option>Comedy</option><option>Others</option>
- </select>
- <label>Translator</label><input data-f="translator">
- <label>Poster URL</label><input data-f="poster" type="url">
- <label>Trailer URL</label><input data-f="trailer" type="url">
- <label>Download URL (used by OPEN and DOWNLOAD)</label>
- <input data-f="full" type="url">
- <label>Publish</label>
- <select data-f="published"><option value="true">Published</option><option value="false">Draft</option></select>
- <button class="danger" onclick="this.closest('.entry').remove()">Remove</button>
+
+  <h3>${type==="movie"?"Movie":"Series"}</h3>
+
+  <label>Title</label>
+  <input data-f="title" placeholder="Title">
+
+  <label>Description</label>
+  <textarea data-f="synopsis" placeholder="Description"></textarea>
+
+  <label>Release Year</label>
+  <input data-f="year" type="number" placeholder="2025">
+
+  <label>Country</label>
+  <input data-f="country" placeholder="China">
+
+  <label>Category</label>
+  <input data-f="category" placeholder="Action, Drama, Romance">
+
+  <label>Poster URL</label>
+  <input data-f="poster" type="url" placeholder="https://...">
+
+  <label>Trailer URL</label>
+  <input data-f="trailer" type="url" placeholder="https://...">
+
+  <label>Download URL (used by OPEN and DOWNLOAD)</label>
+  <input data-f="full" type="url" placeholder="https://...">
+
+  <label>Publish</label>
+  <select data-f="published">
+   <option value="true">Published</option>
+   <option value="false">Draft</option>
+  </select>
+
+  <button class="danger" type="button"
+   onclick="this.closest('.entry').remove()">Remove</button>
+
  </div>`;
 }
 
+/* ADD MOVIE */
 function addMovieEntry(){
- document.getElementById("movieEntries").insertAdjacentHTML("beforeend",movieFields("movie"));
+ document.getElementById("movieEntries")
+  .insertAdjacentHTML("beforeend",movieFields("movie"));
 }
 
+/* ADD SERIES */
 function addSeriesEntry(){
- document.getElementById("seriesEntries").insertAdjacentHTML("beforeend",movieFields("series"));
+ document.getElementById("seriesEntries")
+  .insertAdjacentHTML("beforeend",movieFields("series"));
 }
 
+/* READ MOVIE/SERIES DATA */
 function readMovieEntries(container,type){
- return [...document.querySelectorAll("#"+container+" .entry")].map(el=>{
-  const v=k=>el.querySelector(`[data-f="${k}"]`).value.trim();
-  return {
-   title:v("title"),synopsis:v("synopsis"),
-   release_year:v("year")?Number(v("year")):null,
-   country:v("country"),category:v("category"),
-   content_type:type,translator:v("translator"),
-   poster_url:v("poster"),trailer_url:v("trailer"),
-   download_url:v("full"),
-   is_published:v("published")==="true"
-  };
- });
+
+ return [...document.querySelectorAll("#"+container+" .entry")]
+  .map(function(element){
+
+   const value=function(key){
+    const field=element.querySelector('[data-f="'+key+'"]');
+    return field ? field.value.trim() : "";
+   };
+
+   return {
+    title:value("title"),
+    synopsis:value("synopsis"),
+    release_year:value("year") ? Number(value("year")) : null,
+    country:value("country"),
+    category:value("category"),
+    content_type:type,
+    poster_url:value("poster"),
+    trailer_url:value("trailer"),
+    download_url:value("full"),
+    is_published:value("published")==="true"
+   };
+  });
 }
 
+/* SAVE MOVIES AND SERIES */
 async function saveBatch(container,type){
+
  const records=readMovieEntries(container,type);
- if(!records.length){message("Add at least one item.");return}
- if(records.some(x=>!x.title)){
+
+ if(!records.length){
+  message("Add at least one item.");
+  return;
+ }
+
+ if(records.some(function(item){return !item.title;})){
   message("Please enter a title for every item.");
   return;
  }
- const {error}=await db.from("movies").insert(records);
- if(error){message("Save failed: "+error.message);return}
- message("Saved "+records.length+" items successfully.");
- document.getElementById(container).innerHTML="";
- if(type==="series")await refreshData();
+
+ buttonLoading(
+  type==="movie"?"saveMoviesButton":"saveSeriesButton",
+  true
+ );
+
+ message("Saving "+records.length+" item(s)...");
+
+ try{
+
+  const {data,error}=await db
+   .from("movies")
+   .insert(records)
+   .select();
+
+  if(error){
+   message("Save failed: "+error.message);
+   return;
+  }
+
+  document.getElementById(container).innerHTML="";
+
+  message("Successfully saved "+(data ? data.length : records.length)+" item(s).");
+
+  await refreshData();
+
+ }catch(error){
+  message("Save error: "+error.message);
+ }finally{
+  buttonLoading(
+   type==="movie"?"saveMoviesButton":"saveSeriesButton",
+   false,
+   type==="movie"?"SAVE ALL MOVIES":"SAVE ALL SERIES"
+  );
+ }
 }
 
 async function saveMovies(){
@@ -214,145 +476,448 @@ async function saveSeries(){
  await saveBatch("seriesEntries","series");
 }
 
+/* ADD SEASON FORM */
 function addSeasonEntry(){
- document.getElementById("seasonEntries").insertAdjacentHTML("beforeend",`
- <div class="entry">
- <label>Season Number</label><input data-f="number" type="number" value="1">
- <label>Season Title</label><input data-f="title" placeholder="Season 1">
- <label>Season Download URL</label><input data-f="full" type="url">
- <button class="danger" onclick="this.closest('.entry').remove()">Remove</button>
- </div>`);
+
+ document.getElementById("seasonEntries")
+  .insertAdjacentHTML("beforeend",`
+  <div class="entry">
+
+   <label>Season Number</label>
+   <input data-f="number" type="number" min="1" value="1">
+
+   <label>Season Title</label>
+   <input data-f="title" placeholder="Season 1">
+
+   <label>Season Download URL</label>
+   <input data-f="full" type="url" placeholder="https://...">
+
+   <button class="danger" type="button"
+    onclick="this.closest('.entry').remove()">Remove</button>
+
+  </div>`);
 }
 
+/* SAVE SEASONS */
 async function saveSeasons(){
+
  const movie_id=document.getElementById("seasonMovie").value;
- if(!movie_id){message("Select a series first.");return}
- const rows=[...document.querySelectorAll("#seasonEntries .entry")].map(el=>({
-  movie_id,
-  season_number:Number(el.querySelector('[data-f="number"]').value),
-  title:el.querySelector('[data-f="title"]').value.trim(),
-  download_url:el.querySelector('[data-f="full"]').value.trim()
- }));
- if(!rows.length){message("Add at least one season.");return}
- if(rows.some(x=>!x.title)){message("Enter every season title.");return}
- const {error}=await db.from("seasons").insert(rows);
- if(error){message("Season error: "+error.message);return}
- document.getElementById("seasonEntries").innerHTML="";
- message("Seasons saved successfully.");
- await loadSeasonOptions();
+
+ if(!movie_id){
+  message("Select a series first.");
+  return;
+ }
+
+ const entries=[...document.querySelectorAll("#seasonEntries .entry")];
+
+ if(!entries.length){
+  message("Add at least one season.");
+  return;
+ }
+
+ const rows=entries.map(function(element){
+  return {
+   movie_id:movie_id,
+   season_number:Number(element.querySelector('[data-f="number"]').value),
+   title:element.querySelector('[data-f="title"]').value.trim(),
+   download_url:element.querySelector('[data-f="full"]').value.trim()
+  };
+ });
+
+ if(rows.some(function(row){
+  return !row.title || !row.season_number || row.season_number<1;
+ })){
+  message("Enter a valid season number and title for every season.");
+  return;
+ }
+
+ buttonLoading("saveSeasonsButton",true);
+
+ message("Saving seasons...");
+
+ try{
+
+  const {data,error}=await db
+   .from("seasons")
+   .insert(rows)
+   .select();
+
+  if(error){
+   message("Season error: "+error.message);
+   return;
+  }
+
+  document.getElementById("seasonEntries").innerHTML="";
+
+  message("Successfully saved "+(data ? data.length : rows.length)+" season(s).");
+
+  await loadSeasonOptions();
+
+ }catch(error){
+  message("Season error: "+error.message);
+ }finally{
+  buttonLoading("saveSeasonsButton",false,"SAVE ALL SEASONS");
+ }
 }
 
+/* ADD EPISODE FORM */
 function addEpisodeEntry(){
- document.getElementById("episodeEntries").insertAdjacentHTML("beforeend",`
- <div class="entry">
- <label>Episode Number</label><input data-f="number" type="number" value="1">
- <label>Episode Title</label><input data-f="title">
- <label>Episode Trailer URL</label><input data-f="trailer" type="url">
- <label>Episode Download URL</label><input data-f="full" type="url">
- <button class="danger" onclick="this.closest('.entry').remove()">Remove</button>
- </div>`);
+
+ document.getElementById("episodeEntries")
+  .insertAdjacentHTML("beforeend",`
+  <div class="entry">
+
+   <label>Episode Number</label>
+   <input data-f="number" type="number" min="1" value="1">
+
+   <label>Episode Title</label>
+   <input data-f="title" placeholder="Episode title">
+
+   <label>Episode Trailer URL</label>
+   <input data-f="trailer" type="url" placeholder="https://...">
+
+   <label>Episode Download URL</label>
+   <input data-f="full" type="url" placeholder="https://...">
+
+   <button class="danger" type="button"
+    onclick="this.closest('.entry').remove()">Remove</button>
+
+  </div>`);
 }
 
+/* SAVE EPISODES */
 async function saveEpisodes(){
+
  const season_id=document.getElementById("episodeSeason").value;
- if(!season_id){message("Select a season first.");return}
- const rows=[...document.querySelectorAll("#episodeEntries .entry")].map(el=>({
-  season_id,
-  episode_number:Number(el.querySelector('[data-f="number"]').value),
-  title:el.querySelector('[data-f="title"]').value.trim(),
-  trailer_url:el.querySelector('[data-f="trailer"]').value.trim(),
-  download_url:el.querySelector('[data-f="full"]').value.trim()
- }));
- if(!rows.length){message("Add at least one episode.");return}
- if(rows.some(x=>!x.title)){message("Enter every episode title.");return}
- const {error}=await db.from("episodes").insert(rows);
- if(error){message("Episode error: "+error.message);return}
- document.getElementById("episodeEntries").innerHTML="";
- message("Episodes saved successfully.");
+
+ if(!season_id){
+  message("Select a season first.");
+  return;
+ }
+
+ const entries=[...document.querySelectorAll("#episodeEntries .entry")];
+
+ if(!entries.length){
+  message("Add at least one episode.");
+  return;
+ }
+
+ const rows=entries.map(function(element){
+  return {
+   season_id:season_id,
+   episode_number:Number(element.querySelector('[data-f="number"]').value),
+   title:element.querySelector('[data-f="title"]').value.trim(),
+   trailer_url:element.querySelector('[data-f="trailer"]').value.trim(),
+   download_url:element.querySelector('[data-f="full"]').value.trim()
+  };
+ });
+
+ if(rows.some(function(row){
+  return !row.title || !row.episode_number || row.episode_number<1;
+ })){
+  message("Enter a valid episode number and title for every episode.");
+  return;
+ }
+
+ buttonLoading("saveEpisodesButton",true);
+
+ message("Saving episodes...");
+
+ try{
+
+  const {data,error}=await db
+   .from("episodes")
+   .insert(rows)
+   .select();
+
+  if(error){
+   message("Episode error: "+error.message);
+   return;
+  }
+
+  document.getElementById("episodeEntries").innerHTML="";
+
+  message("Successfully saved "+(data ? data.length : rows.length)+" episode(s).");
+
+ }catch(error){
+  message("Episode error: "+error.message);
+ }finally{
+  buttonLoading("saveEpisodesButton",false,"SAVE ALL EPISODES");
+ }
 }
 
+/* REFRESH CONTENT */
 async function refreshData(){
- const {data,error}=await db.from("movies").select("*").order("created_at",{ascending:false});
- if(error){message(error.message);return}
- const all=data||[];
- document.getElementById("contentList").innerHTML=all.map(m=>`
- <div class="item">
- <strong>${escapeHtml(m.title)}</strong><br>
- <small>${escapeHtml(m.content_type||"movie")} · ${m.is_published?"Published":"Draft"}</small><br>
- <button onclick="editContent('${m.id}')">Edit</button>
- <button class="danger" onclick="deleteContent('${m.id}')">Delete</button>
- </div>`).join("")||"No content yet.";
- const series=all.filter(m=>m.content_type==="series");
- document.getElementById("seasonMovie").innerHTML=
- series.map(s=>`<option value="${s.id}">${escapeHtml(s.title)}</option>`).join("");
- await loadSeasonOptions();
+
+ const list=document.getElementById("contentList");
+
+ if(list)list.textContent="Loading...";
+
+ try{
+
+  const {data,error}=await db
+   .from("movies")
+   .select("*")
+   .order("created_at",{ascending:false});
+
+  if(error){
+   message("Loading error: "+error.message);
+   if(list)list.textContent="Could not load content.";
+   return;
+  }
+
+  const all=data||[];
+
+  if(list){
+   list.innerHTML=all.map(function(movie){
+
+    return `
+    <div class="item">
+
+     <strong>${escapeHtml(movie.title)}</strong><br>
+
+     <small class="small">
+      ${escapeHtml(movie.content_type||"movie")}
+      ·
+      ${movie.is_published?"Published":"Draft"}
+     </small>
+
+     <br>
+
+     <button onclick="editContent('${escapeHtml(movie.id)}')">Edit</button>
+
+     <button class="danger"
+      onclick="deleteContent('${escapeHtml(movie.id)}')">Delete</button>
+
+    </div>`;
+   }).join("") || "No content yet.";
+  }
+
+  const series=all.filter(function(movie){
+   return movie.content_type==="series";
+  });
+
+  const seasonSelect=document.getElementById("seasonMovie");
+  const previousValue=seasonSelect.value;
+
+  seasonSelect.innerHTML=
+   '<option value="">Select a series</option>'+
+   series.map(function(item){
+    return `<option value="${escapeHtml(item.id)}">${escapeHtml(item.title)}</option>`;
+   }).join("");
+
+  if(series.some(function(item){return String(item.id)===previousValue;})){
+   seasonSelect.value=previousValue;
+  }
+
+  await loadSeasonOptions();
+
+ }catch(error){
+  message("Refresh error: "+error.message);
+ }
 }
 
+/* LOAD SEASONS FOR SELECTED SERIES */
 async function loadSeasonOptions(){
+
  const movie_id=document.getElementById("seasonMovie").value;
  const select=document.getElementById("episodeSeason");
- if(!movie_id){select.innerHTML="";return}
- const {data,error}=await db.from("seasons").select("*")
- .eq("movie_id",movie_id).order("season_number");
- if(error){message(error.message);return}
- select.innerHTML=(data||[]).map(s=>
- `<option value="${s.id}">Season ${s.season_number} — ${escapeHtml(s.title)}</option>`
- ).join("");
+
+ if(!movie_id){
+  select.innerHTML='<option value="">Select a season</option>';
+  return;
+ }
+
+ try{
+
+  const {data,error}=await db
+   .from("seasons")
+   .select("*")
+   .eq("movie_id",movie_id)
+   .order("season_number");
+
+  if(error){
+   message("Season loading error: "+error.message);
+   select.innerHTML='<option value="">Could not load seasons</option>';
+   return;
+  }
+
+  select.innerHTML=
+   '<option value="">Select a season</option>'+
+   (data||[]).map(function(season){
+    return `
+     <option value="${escapeHtml(season.id)}">
+      Season ${escapeHtml(season.season_number)} — ${escapeHtml(season.title)}
+     </option>`;
+   }).join("");
+
+ }catch(error){
+  message("Season loading error: "+error.message);
+ }
 }
 
-document.getElementById("seasonMovie").addEventListener("change",loadSeasonOptions);
+/* SERIES CHANGE */
+document.getElementById("seasonMovie")
+ .addEventListener("change",loadSeasonOptions);
 
+/* EDIT CONTENT */
 async function editContent(id){
- const {data:m,error}=await db.from("movies").select("*").eq("id",id).single();
- if(error){message(error.message);return}
- const series=m.content_type==="series";
- showTab(series?"series":"movies");
- const container=series?"seriesEntries":"movieEntries";
- const type=series?"series":"movie";
- document.getElementById(container).innerHTML=movieFields(type);
- const el=document.querySelector("#"+container+" .entry");
- const set=(k,v)=>{
-  const field=el.querySelector(`[data-f="${k}"]`);
-  if(field)field.value=v??"";
- };
- set("title",m.title);set("synopsis",m.synopsis);
- set("year",m.release_year);set("country",m.country);
- set("category",m.category);set("translator",m.translator);
- set("poster",m.poster_url);set("trailer",m.trailer_url);
- set("full",m.download_url);set("published",String(!!m.is_published));
- const btn=document.createElement("button");
- btn.textContent="UPDATE";
- btn.onclick=async()=>{
-  const record=readMovieEntries(container,type)[0];
-  if(!record.title){message("Enter a title.");return}
-  const {error}=await db.from("movies").update(record).eq("id",id);
-  if(error){message(error.message);return}
-  message("Content updated.");
-  document.getElementById(container).innerHTML="";
-  await refreshData();
- };
- el.appendChild(btn);
+
+ message("Loading content...");
+
+ try{
+
+  const {data:movie,error}=await db
+   .from("movies")
+   .select("*")
+   .eq("id",id)
+   .single();
+
+  if(error){
+   message("Edit loading error: "+error.message);
+   return;
+  }
+
+  const isSeries=movie.content_type==="series";
+  const container=isSeries?"seriesEntries":"movieEntries";
+  const type=isSeries?"series":"movie";
+
+  showTab(type);
+
+  document.getElementById(container).innerHTML=movieFields(type);
+
+  const element=document.querySelector("#"+container+" .entry");
+
+  const setValue=function(key,value){
+   const field=element.querySelector('[data-f="'+key+'"]');
+   if(field)field.value=value??"";
+  };
+
+  setValue("title",movie.title);
+  setValue("synopsis",movie.synopsis);
+  setValue("year",movie.release_year);
+  setValue("country",movie.country);
+  setValue("category",movie.category);
+  setValue("poster",movie.poster_url);
+  setValue("trailer",movie.trailer_url);
+  setValue("full",movie.download_url);
+  setValue("published",String(!!movie.is_published));
+
+  const updateButton=document.createElement("button");
+  updateButton.textContent="UPDATE";
+  updateButton.type="button";
+
+  updateButton.onclick=async function(){
+
+   const record=readMovieEntries(container,type)[0];
+
+   if(!record.title){
+    message("Enter a title.");
+    return;
+   }
+
+   updateButton.disabled=true;
+   updateButton.textContent="UPDATING...";
+
+   try{
+
+    const {error:updateError}=await db
+     .from("movies")
+     .update(record)
+     .eq("id",id);
+
+    if(updateError){
+     message("Update failed: "+updateError.message);
+     return;
+    }
+
+    message("Content updated successfully.");
+
+    document.getElementById(container).innerHTML="";
+
+    await refreshData();
+
+   }catch(error){
+    message("Update error: "+error.message);
+   }finally{
+    updateButton.disabled=false;
+    updateButton.textContent="UPDATE";
+   }
+  };
+
+  element.appendChild(updateButton);
+
+  message("Edit the content and press UPDATE.");
+
+ }catch(error){
+  message("Edit error: "+error.message);
+ }
 }
 
+/* DELETE CONTENT */
 async function deleteContent(id){
+
  if(!confirm("Delete this content?"))return;
- const {error}=await db.from("movies").delete().eq("id",id);
- message(error?"Delete failed: "+error.message:"Content deleted.");
- await refreshData();
+
+ message("Deleting...");
+
+ try{
+
+  const {error}=await db
+   .from("movies")
+   .delete()
+   .eq("id",id);
+
+  if(error){
+   message("Delete failed: "+error.message);
+   return;
+  }
+
+  message("Content deleted successfully.");
+
+  await refreshData();
+
+ }catch(error){
+  message("Delete error: "+error.message);
+ }
 }
 
+/* INITIAL FORMS */
 addMovieEntry();
 addSeriesEntry();
 
-(async()=>{
- const {data}=await db.auth.getSession();
- if(data.session){
-  const {data:admin}=await db.from("admins").select("user_id")
-  .eq("user_id",data.session.user.id).maybeSingle();
-  if(admin)openDashboard();
-  else await db.auth.signOut();
- }
-})();
-</script>
-</body>
-</html>
+/* CHECK EXISTING SESSION */
+(async function(){
+
+ try{
+
+  const {data,error}=await db.auth.getSession();
+
+  if(error){
+   loginMessage(error.message);
+   return;
+  }
+
+  if(data.session){
+
+   const {data:admin,error:adminError}=await db
+    .from("admins")
+    .select("user_id")
+    .eq("user_id",data.session.user.id)
+    .maybeSingle();
+
+   if(adminError){
+    await db.auth.signOut();
+    loginMessage("Admin check failed: "+adminError.message);
+    return;
+   }
+
+   if(admin){
+    openDashboard();
+   }else{
+    await db.auth.signOut();
+   }
+  }
+
+ }catch(error){
+  loginMessage("Session error
